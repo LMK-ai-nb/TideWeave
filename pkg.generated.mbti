@@ -2,6 +2,10 @@
 package "LMK-ai-nb/tideweave"
 
 // Values
+pub fn aggregate(Config, Array[Event], watermark? : Int32) -> Array[Window] raise TideError
+
+pub fn assign_fixed(WindowSpec, Int32) -> Array[(Int32, Int32)] raise TideError
+
 pub fn config(WindowSpec, lateness? : Int32, max_events? : Int32, max_operations? : Int32) -> Config raise TideError
 
 pub fn validate_event(Event) -> Unit raise TideError
