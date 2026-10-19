@@ -16,6 +16,10 @@ pub fn replay(Config, Array[Command]) -> Replay raise TideError
 
 pub fn replay_json(String) -> String raise TideError
 
+pub fn restore(String) -> Engine raise TideError
+
+pub fn resume_json(String) -> String raise TideError
+
 pub fn validate_event(Event) -> Unit raise TideError
 
 // Errors
@@ -63,11 +67,14 @@ pub struct Engine {
   mut revision : Int32
   committed : Map[String, Command]
   journal : Array[Command]
+  mut journal_units : Int32
 }
 pub fn Engine::apply(Self, Command) -> Outcome
+pub fn Engine::checkpoint(Self) -> String
 pub fn Engine::events(Self) -> Array[Event]
 pub fn Engine::new(Config) -> Self raise TideError
 pub fn Engine::rows(Self) -> Array[Window]
+pub fn Engine::run(Self, Array[Command]) -> Replay raise TideError
 pub fn Engine::version(Self) -> Int32
 pub fn Engine::watermark(Self) -> Int32
 
@@ -110,6 +117,7 @@ pub(all) struct Replay {
   events : Array[Event]
   watermark : Int32
   version : Int32
+  checkpoint : Json
 } derive(ToJson)
 pub fn Replay::to_json(Self) -> Json
 

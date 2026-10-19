@@ -8,6 +8,7 @@ pub struct Engine {
   mut revision : Int32
   committed : Map[String, Command]
   journal : Array[Command]
+  mut journal_units : Int32
 }
 
 ///|
@@ -21,6 +22,7 @@ pub fn Engine::new(cfg : Config) -> Engine raise TideError {
     revision: 0,
     committed: Map([]),
     journal: [],
+    journal_units: 0,
   }
 }
 
@@ -146,6 +148,9 @@ fn Engine::candidate(
   c : Command,
 ) -> (Map[String, Event], Array[Window], Int32) raise TideError {
   validate_command(c)
+  if self.journal_units + c.to_json().stringify().length() > 2097152 {
+    fail("serialized successful journal exceeds 2 Mi UTF-16 units")
+  }
   if self.journal.length() >= self.cfg.max_operations {
     fail("successful command capacity exceeded")
   }
@@ -283,6 +288,8 @@ pub fn Engine::apply(self : Engine, command : Command) -> Outcome {
   let detached = copy_command(command)
   self.committed[id] = detached
   self.journal.push(detached)
+  self.journal_units = self.journal_units +
+    detached.to_json().stringify().length()
   {
     id,
     status: "accepted",

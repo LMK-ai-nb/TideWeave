@@ -242,6 +242,7 @@ pub(all) struct Replay {
   events : Array[Event]
   watermark : Int32
   version : Int32
+  checkpoint : Json
 } derive(ToJson)
 
 ///|
@@ -250,15 +251,28 @@ pub fn replay(c : Config, commands : Array[Command]) -> Replay raise TideError {
     fail("at most 10000 commands per replay")
   }
   let engine = Engine::new(c)
+  engine.run(commands)
+}
+
+///|
+/// Resume on an existing engine; commands are processed in supplied order.
+pub fn Engine::run(
+  engine : Engine,
+  commands : Array[Command],
+) -> Replay raise TideError {
+  if commands.length() > 10000 {
+    fail("at most 10000 commands per replay")
+  }
   let steps = commands.map(command => engine.apply(command))
   {
     schema_version: 1,
-    config: c,
+    config: engine.cfg,
     steps,
     rows: engine.rows(),
     events: engine.events(),
     watermark: engine.watermark(),
     version: engine.version(),
+    checkpoint: engine.checkpoint_value(),
   }
 }
 
