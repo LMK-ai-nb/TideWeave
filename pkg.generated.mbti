@@ -1,0 +1,96 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "LMK-ai-nb/tideweave"
+
+// Values
+pub fn config(WindowSpec, lateness? : Int32, max_events? : Int32, max_operations? : Int32) -> Config raise TideError
+
+pub fn validate_event(Event) -> Unit raise TideError
+
+// Errors
+pub(all) suberror TideError {
+  TideError(String)
+} derive(Eq)
+pub fn TideError::equal(Self, Self) -> Bool
+pub fn TideError::not_equal(Self, Self) -> Bool
+
+// Types and methods
+pub(all) enum Command {
+  Transact(id~ : String, changes~ : Array[Mutation])
+  Advance(id~ : String, to~ : Int32)
+} derive(Eq)
+pub fn Command::equal(Self, Self) -> Bool
+pub fn Command::not_equal(Self, Self) -> Bool
+
+pub(all) struct Config {
+  window : WindowSpec
+  lateness : Int32
+  max_events : Int32
+  max_operations : Int32
+} derive(Eq)
+pub fn Config::equal(Self, Self) -> Bool
+pub fn Config::not_equal(Self, Self) -> Bool
+
+pub(all) struct Delta {
+  kind : String
+  before : Window?
+  after : Window?
+} derive(Eq, ToJson)
+pub fn Delta::equal(Self, Self) -> Bool
+pub fn Delta::not_equal(Self, Self) -> Bool
+pub fn Delta::to_json(Self) -> Json
+
+pub(all) struct Event {
+  id : String
+  key : String
+  at : Int32
+  value : Int32
+} derive(Eq, ToJson)
+pub fn Event::equal(Self, Self) -> Bool
+pub fn Event::not_equal(Self, Self) -> Bool
+pub fn Event::to_json(Self) -> Json
+
+pub(all) enum Mutation {
+  Put(Event)
+  Remove(String)
+} derive(Eq)
+pub fn Mutation::equal(Self, Self) -> Bool
+pub fn Mutation::not_equal(Self, Self) -> Bool
+
+pub(all) struct Outcome {
+  id : String
+  status : String
+  version : Int32
+  watermark : Int32
+  deltas : Array[Delta]
+  message : String
+} derive(Eq, ToJson)
+pub fn Outcome::equal(Self, Self) -> Bool
+pub fn Outcome::not_equal(Self, Self) -> Bool
+pub fn Outcome::to_json(Self) -> Json
+
+pub(all) struct Window {
+  key : String
+  start : Int32
+  end : Int32
+  count : Int32
+  sum : Int64
+  min : Int32
+  max : Int32
+  members : Array[String]
+  phase : String
+} derive(Eq, ToJson)
+pub fn Window::equal(Self, Self) -> Bool
+pub fn Window::not_equal(Self, Self) -> Bool
+pub fn Window::to_json(Self) -> Json
+
+pub(all) enum WindowSpec {
+  Tumbling(size~ : Int32, offset~ : Int32)
+  Sliding(size~ : Int32, slide~ : Int32, offset~ : Int32)
+  Session(gap~ : Int32)
+} derive(Eq)
+pub fn WindowSpec::equal(Self, Self) -> Bool
+pub fn WindowSpec::not_equal(Self, Self) -> Bool
+
+// Type aliases
+
+// Traits
