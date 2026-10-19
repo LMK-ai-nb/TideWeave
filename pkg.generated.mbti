@@ -121,6 +121,17 @@ pub(all) struct Replay {
 } derive(ToJson)
 pub fn Replay::to_json(Self) -> Json
 
+pub struct View {
+  mut materialized : Array[Window]
+  mut revision : Int32
+  mut clock : Int32
+  mut last_delivery : String
+}
+pub fn View::apply(Self, Outcome) -> Unit raise TideError
+pub fn View::new() -> Self
+pub fn View::rows(Self) -> Array[Window]
+pub fn View::version(Self) -> Int32
+
 pub(all) struct Window {
   key : String
   start : Int32
