@@ -172,13 +172,42 @@ pub fn aggregate(
 }
 
 ///|
-/// Session implementation arrives in the next independent milestone.
+/// Rebuild connected components after corrections, including deletion splits.
 fn session_rows(
-  _c : Config,
-  _key : String,
-  _events : Array[Event],
-  _watermark : Int32,
-  _gap : Int32,
-) -> Array[Window] raise TideError {
-  fail("session aggregation is not implemented yet")
+  c : Config,
+  key : String,
+  events : Array[Event],
+  watermark : Int32,
+  gap : Int32,
+) -> Array[Window] {
+  let sorted = events.copy()
+  sorted.sort_by(fn(a, b) {
+    if a.at == b.at {
+      a.id.compare(b.id)
+    } else {
+      a.at.compare(b.at)
+    }
+  })
+  let rows = []
+  let mut begin = 0
+  for i in 1..<=sorted.length() {
+    if i == sorted.length() || sorted[i].at - sorted[i - 1].at >= gap {
+      let component = []
+      for j in begin..<i {
+        component.push(sorted[j])
+      }
+      rows.push(
+        row_from_events(
+          key,
+          sorted[begin].at,
+          sorted[i - 1].at + gap,
+          component,
+          watermark,
+          c.lateness,
+        ),
+      )
+      begin = i
+    }
+  }
+  rows
 }
