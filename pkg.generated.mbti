@@ -43,6 +43,22 @@ pub fn Delta::equal(Self, Self) -> Bool
 pub fn Delta::not_equal(Self, Self) -> Bool
 pub fn Delta::to_json(Self) -> Json
 
+pub struct Engine {
+  cfg : Config
+  mut records : Map[String, Event]
+  mut materialized : Array[Window]
+  mut clock : Int32
+  mut revision : Int32
+  committed : Map[String, Command]
+  journal : Array[Command]
+}
+pub fn Engine::apply(Self, Command) -> Outcome
+pub fn Engine::events(Self) -> Array[Event]
+pub fn Engine::new(Config) -> Self raise TideError
+pub fn Engine::rows(Self) -> Array[Window]
+pub fn Engine::version(Self) -> Int32
+pub fn Engine::watermark(Self) -> Int32
+
 pub(all) struct Event {
   id : String
   key : String
