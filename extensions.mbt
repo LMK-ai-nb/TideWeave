@@ -36,3 +36,18 @@ pub extend Outcome with ToJson::{to_json}
 
 ///|
 pub extend TideError with Eq::{equal, not_equal}
+
+///|
+pub extend WindowSpec with ToJson::{to_json}
+
+///|
+pub extend Config with ToJson::{to_json}
+
+///|
+pub extend Mutation with ToJson::{to_json}
+
+///|
+pub extend Command with ToJson::{to_json}
+
+///|
+pub extend Replay with ToJson::{to_json}

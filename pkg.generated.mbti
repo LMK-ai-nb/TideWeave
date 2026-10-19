@@ -8,6 +8,14 @@ pub fn assign_fixed(WindowSpec, Int32) -> Array[(Int32, Int32)] raise TideError
 
 pub fn config(WindowSpec, lateness? : Int32, max_events? : Int32, max_operations? : Int32) -> Config raise TideError
 
+pub fn decode_commands(String) -> Array[Command] raise TideError
+
+pub fn decode_config(String) -> Config raise TideError
+
+pub fn replay(Config, Array[Command]) -> Replay raise TideError
+
+pub fn replay_json(String) -> String raise TideError
+
 pub fn validate_event(Event) -> Unit raise TideError
 
 // Errors
@@ -24,6 +32,8 @@ pub(all) enum Command {
 } derive(Eq)
 pub fn Command::equal(Self, Self) -> Bool
 pub fn Command::not_equal(Self, Self) -> Bool
+pub fn Command::to_json(Self) -> Json
+pub impl ToJson for Command
 
 pub(all) struct Config {
   window : WindowSpec
@@ -33,6 +43,8 @@ pub(all) struct Config {
 } derive(Eq)
 pub fn Config::equal(Self, Self) -> Bool
 pub fn Config::not_equal(Self, Self) -> Bool
+pub fn Config::to_json(Self) -> Json
+pub impl ToJson for Config
 
 pub(all) struct Delta {
   kind : String
@@ -75,6 +87,8 @@ pub(all) enum Mutation {
 } derive(Eq)
 pub fn Mutation::equal(Self, Self) -> Bool
 pub fn Mutation::not_equal(Self, Self) -> Bool
+pub fn Mutation::to_json(Self) -> Json
+pub impl ToJson for Mutation
 
 pub(all) struct Outcome {
   id : String
@@ -87,6 +101,17 @@ pub(all) struct Outcome {
 pub fn Outcome::equal(Self, Self) -> Bool
 pub fn Outcome::not_equal(Self, Self) -> Bool
 pub fn Outcome::to_json(Self) -> Json
+
+pub(all) struct Replay {
+  schema_version : Int32
+  config : Config
+  steps : Array[Outcome]
+  rows : Array[Window]
+  events : Array[Event]
+  watermark : Int32
+  version : Int32
+} derive(ToJson)
+pub fn Replay::to_json(Self) -> Json
 
 pub(all) struct Window {
   key : String
@@ -110,6 +135,8 @@ pub(all) enum WindowSpec {
 } derive(Eq)
 pub fn WindowSpec::equal(Self, Self) -> Bool
 pub fn WindowSpec::not_equal(Self, Self) -> Bool
+pub fn WindowSpec::to_json(Self) -> Json
+pub impl ToJson for WindowSpec
 
 // Type aliases
 

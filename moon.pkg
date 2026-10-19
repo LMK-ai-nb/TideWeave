@@ -1,1 +1,3 @@
-// The typed core has no third-party dependencies.
+import {
+  "moonbitlang/core/json",
+}
