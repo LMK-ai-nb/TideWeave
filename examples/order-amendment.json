@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "config": { "window": { "kind": "tumbling", "size": 60 }, "lateness": 30 },
+  "commands": [
+    { "id": "orders", "kind": "transaction", "changes": [
+      { "op": "put", "event": { "id": "order-1", "key": "shop-A", "at": 10, "value": 12000 } },
+      { "op": "put", "event": { "id": "order-2", "key": "shop-A", "at": 45, "value": 7500 } },
+      { "op": "put", "event": { "id": "order-3", "key": "shop-B", "at": 20, "value": 8600 } }
+    ] },
+    { "id": "close-minute", "kind": "watermark", "to": 60 },
+    { "id": "amend", "kind": "transaction", "changes": [
+      { "op": "remove", "event_id": "order-2" },
+      { "op": "put", "event": { "id": "order-4", "key": "shop-A", "at": 50, "value": 6900 } }
+    ] },
+    { "id": "seal", "kind": "watermark", "to": 90 }
+  ]
+}

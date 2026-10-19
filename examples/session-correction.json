@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "config": { "window": { "kind": "session", "gap": 10 }, "lateness": 20 },
+  "commands": [
+    { "id": "seed", "kind": "transaction", "changes": [
+      { "op": "put", "event": { "id": "left", "key": "device-A", "at": 0, "value": 20 } },
+      { "op": "put", "event": { "id": "right", "key": "device-A", "at": 16, "value": 35 } }
+    ] },
+    { "id": "watermark-12", "kind": "watermark", "to": 12 },
+    { "id": "late-bridge", "kind": "transaction", "changes": [
+      { "op": "put", "event": { "id": "bridge", "key": "device-A", "at": 8, "value": 12 } }
+    ] },
+    { "id": "retract-bridge", "kind": "transaction", "changes": [ { "op": "remove", "event_id": "bridge" } ] },
+    { "id": "finish", "kind": "watermark", "to": 60 },
+    { "id": "too-late", "kind": "transaction", "changes": [ { "op": "remove", "event_id": "left" } ] }
+  ]
+}

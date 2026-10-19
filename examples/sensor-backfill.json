@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "config": { "window": { "kind": "sliding", "size": 20, "slide": 10 }, "lateness": 25 },
+  "commands": [
+    { "id": "live", "kind": "transaction", "changes": [
+      { "op": "put", "event": { "id": "s1", "key": "sensor-7", "at": 12, "value": 18 } },
+      { "op": "put", "event": { "id": "s3", "key": "sensor-7", "at": 27, "value": 22 } }
+    ] },
+    { "id": "progress", "kind": "watermark", "to": 30 },
+    { "id": "offline-buffer", "kind": "transaction", "changes": [
+      { "op": "put", "event": { "id": "s2", "key": "sensor-7", "at": 16, "value": 19 } }
+    ] },
+    { "id": "calibration", "kind": "transaction", "changes": [
+      { "op": "put", "event": { "id": "s3", "key": "sensor-7", "at": 27, "value": 21 } }
+    ] },
+    { "id": "finished", "kind": "watermark", "to": 70 }
+  ]
+}

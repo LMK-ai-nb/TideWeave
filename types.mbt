@@ -91,6 +91,15 @@ pub fn config(
 
 ///|
 fn validate_config(c : Config) -> Unit raise TideError {
+  let extent = match c.window {
+    Tumbling(size~, ..) | Sliding(size~, ..) => size
+    Session(gap~) => gap
+  }
+  if extent.to_int64() + c.lateness.to_int64() > 1000000000 {
+    fail(
+      "window extent plus lateness must be <= 1000000000 so every window can finalize",
+    )
+  }
   if c.lateness < 0 || c.lateness > 1000000000 {
     fail("lateness must be in 0..1000000000")
   }

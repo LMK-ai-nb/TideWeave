@@ -1,0 +1,5 @@
+import {
+  "LMK-ai-nb/tideweave" @tide,
+}
+
+pkgtype(kind: "executable")

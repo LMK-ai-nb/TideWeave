@@ -1,0 +1,7 @@
+import {
+  "LMK-ai-nb/tideweave" @tide,
+}
+
+options(
+  link: { "js": { "exports": [ "replay", "resume_replay" ], "format": "esm" } },
+)
