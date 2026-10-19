@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="TideWeave：用 MoonBit 处理迟到数据、会话合并拆分和原子修正。可在浏览器离线运行的事件时间实验室。">
+  <title>TideWeave · 事件时间实验室</title>
+  <link rel="icon" href="mark.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="./"><img src="mark.svg" width="36" height="36" alt=""><span>TideWeave<small>EVENT TIME ENGINE</small></span></a>
+    <div class="nav-label">WORKSPACE</div>
+    <a class="nav active" href="#lab"><span>◈</span> 事件时间实验室</a>
+    <a class="nav" href="https://github.com/LMK-ai-nb/TideWeave/blob/main/docs/SEMANTICS.md" target="_blank" rel="noopener"><span>≋</span> 语义与边界 <span class="external">↗</span></a>
+    <a class="nav" href="https://github.com/LMK-ai-nb/TideWeave" target="_blank" rel="noopener"><span>⌘</span> 源代码 <span class="external">↗</span></a>
+    <div class="side-note"><i class="pulse"></i> 计算发生在你的浏览器里<p>同一份 MoonBit 核心<br>连接命令行、API 与可视化。</p><span>LMK-ai-nb / v0.1.0</span></div>
+  </aside>
+  <main id="lab">
+    <header class="topbar"><span>数据处理 <b>/</b> 事件时间实验室</span><a href="https://mooncakes.io/docs/LMK-ai-nb/tideweave" target="_blank" rel="noopener">Mooncakes 包 ↗</a></header>
+    <section class="intro"><div><div class="eyebrow"><i></i> CORRECTION-AWARE STREAMING</div><h1>让迟到的数据，<br class="mobile-break">回到正确的位置<span>。</span></h1><p>补传、撤回、重算。沿着每一次变更，看清数据如何被修正。</p></div><span class="core-badge"><img src="mark.svg" width="17" height="17" alt=""> POWERED BY MOONBIT</span></section>
+    <section class="scenario-strip" aria-label="选择示例场景">
+      <button class="scenario selected" data-example="session-correction.json"><span class="scenario-number">01</span><span><b>离线会话修复</b><small>迟到桥接 → 合并 → 撤回拆分</small></span><span class="scenario-arrow">↗</span></button>
+      <button class="scenario" data-example="order-amendment.json"><span class="scenario-number">02</span><span><b>订单原子修正</b><small>撤单与替换，一次完整提交</small></span><span class="scenario-arrow">↗</span></button>
+      <button class="scenario" data-example="sensor-backfill.json"><span class="scenario-number">03</span><span><b>传感器迟到补传</b><small>重叠窗口，保持结果一致</small></span><span class="scenario-arrow">↗</span></button>
+    </section>
+    <div id="error" class="error" role="alert" hidden></div>
+    <section class="metrics" aria-label="当前状态">
+      <div><span>有效事件 <small>ACTIVE EVENTS</small></span><strong id="event-count">—</strong><i>按 ID 去重后的事实</i></div>
+      <div><span>聚合窗口 <small>MATERIALIZED WINDOWS</small></span><strong id="window-count">—</strong><i id="window-description">事件时间中的连接关系</i></div>
+      <div><span>当前水位 <small>WATERMARK</small></span><strong id="watermark">—</strong><i>显式推进，绝不读取墙钟</i></div>
+      <div><span>提交版本 <small>COMMITTED VERSION</small></span><strong id="version">—</strong><i id="commit-description">每次原子提交仅推进一次</i></div>
+    </section>
+    <div class="workspace-grid">
+      <section class="panel timeline-panel">
+        <div class="panel-heading"><div><span class="panel-label">LIVE MATERIALIZED VIEW</span><h2>事件流与窗口</h2></div><span id="window-kind" class="tag">会话窗口 · gap 10</span></div>
+        <div class="chart-legend"><span><i class="dot teal"></i>活跃事件</span><span><i class="line-marker"></i>水位线</span><span><i class="window-marker"></i>窗口范围</span></div>
+        <div id="chart" class="chart" aria-label="窗口和事件时间图"></div>
+        <div class="playback"><button id="reset" class="icon-button" title="返回起点" aria-label="返回起点">↺</button><button id="previous" class="icon-button" title="上一步" aria-label="上一步">‹</button><button id="next" class="primary">下一步 <span>→</span></button><div class="step-track"><div id="step-progress"></div></div><span id="step-count">0 / 0</span><button id="finish" class="text-button">全部执行</button></div>
+        <div id="narrative" class="narrative"><span>⌁</span><p>载入示例中…</p></div>
+      </section>
+      <section class="panel command-panel"><div class="panel-heading"><div><span class="panel-label">ORDERED INPUT</span><h2>命令时间线</h2></div><span id="command-total" class="count-badge">0</span></div><div id="commands" class="commands"></div></section>
+      <section class="panel rows-panel"><div class="panel-heading"><div><span class="panel-label">WINDOW AGGREGATES</span><h2>当前聚合结果</h2></div><div class="legend"><i class="dot teal"></i> open <i class="dot amber"></i> closing <i class="dot muted"></i> final</div></div><div class="table-wrap"><table><thead><tr><th>分组 KEY</th><th>时间区间</th><th>事件数</th><th>SUM</th><th>状态</th><th>成员 ID</th></tr></thead><tbody id="rows"></tbody></table></div></section>
+      <section class="panel changes-panel"><div class="panel-heading"><div><span class="panel-label">ATOMIC CHANGELOG</span><h2>这一步发生了什么</h2></div><span id="delta-count" class="tag">0 条变更</span></div><div id="changes" class="changes"></div></section>
+    </div>
+    <details class="panel editor-panel"><summary><span>⌘</span><b>使用自己的数据</b><small>严格 JSON 校验 · 不上传数据</small><span class="details-arrow">＋</span></summary><div class="editor-body"><label for="input">输入 schema v1 文档；数字使用普通十进制整数，时间单位由调用方约定。</label><textarea id="input" spellcheck="false" aria-label="输入 JSON"></textarea><div class="editor-actions"><button id="apply" class="primary">校验并载入</button><button id="export" class="secondary">导出当前检查点 ↓</button><button id="export-report" class="secondary">导出执行报告 ↓</button><span>⌁ 与 CLI 使用同一核心</span></div></div></details>
+    <footer><span>TideWeave · 李明坤 / LMK-ai-nb</span><span>有界嵌入式引擎 · 相对整数时间 · 合成演示数据</span><a href="https://github.com/LMK-ai-nb/TideWeave/blob/main/LICENSE">MIT License ↗</a></footer>
+  </main>
+  <script type="module" src="app.js"></script>
+</body></html>
