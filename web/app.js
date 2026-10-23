@@ -10,6 +10,8 @@ const reasons={
   'correction would change a finalized window':'这次修正会改变已经终结的窗口。整笔事务已拒绝，现有结果保持一致。',
   'correction would change a finalized event':'修正涉及已终结窗口的原始事件。即使聚合数值相同，也不能改写已经封存的事实。',
   'correction would create an already finalized window':'修正会产生一个已经过期的历史窗口，因此整笔拒绝。',
+  'cannot remove a sealed (finalized) fact':'这条事实已经封存，不能再撤回或替换。封存是有意的单向边界。',
+  'cannot replace a sealed (finalized) fact':'这条事实已经封存，不能再撤回或替换。封存是有意的单向边界。',
 };
 function materialize(n){
   const rows=new Map();
@@ -42,6 +44,7 @@ function narrative(o){
   if(o.status==='conflict')return '这个命令 ID 已被其他内容使用，当前请求没有产生任何变化。';
   const cmd=input.commands[step-1];
   if(cmd.kind==='watermark')return `水位推进到 ${cmd.to}。窗口先进入 closing，再在 end + lateness 时终结；终结后拒绝历史改写。`;
+  if(cmd.kind==='forget')return `水位推进到 ${cmd.to}，已终结的事实被封存：移出活动集、释放容量，之后不可再修正。`;
   const deletes=o.deltas.filter(d=>d.kind==='delete').length,ups=o.deltas.filter(d=>d.kind==='upsert').length;
   if(deletes===2&&ups===1)return '迟到的桥接事件连接了两个会话。原来的两行被撤回，一个新的合并窗口原子地替代它们。';
   if(deletes===1&&ups===2)return '桥接事件被撤回，连接断开。旧窗口被删除，两个独立会话重新出现，成员与聚合一并修正。';
@@ -52,6 +55,8 @@ function render(){
   const o=report.steps[step-1],rows=materialize(step),wm=o?.watermark??0,ver=o?.version??0;
   const events=new Map();
   input.commands.slice(0,step).forEach((c,i)=>{if(report.steps[i].status!=='accepted'||c.kind!=='transaction')return;for(const m of c.changes){if(m.op==='put')events.set(m.event.id,m.event);else events.delete(m.event_id);}});
+  const sawForget=input.commands.slice(0,step).some((c,i)=>c.kind==='forget'&&report.steps[i].status==='accepted');
+  if(sawForget)for(const id of [...events.keys()]){const containing=rows.filter(r=>r.members.includes(id));if(containing.length>0&&containing.every(r=>r.phase==='final'))events.delete(id);}
   $('event-count').textContent=events.size;$('window-count').textContent=rows.length;$('watermark').textContent=wm;$('version').textContent=String(ver).padStart(2,'0');
   $('commit-description').textContent=o?`${o.id} · ${labels[o.status]}`:'等待第一条命令';
   $('step-count').textContent=`${step} / ${report.steps.length}`;$('step-progress').style.width=`${report.steps.length?100*step/report.steps.length:0}%`;
@@ -63,7 +68,7 @@ function render(){
   for(const r of rows){const tr=document.createElement('tr');tr.className='aggregate-row';for(const v of [r.key,`[${r.start}, ${r.end})`,r.count,r.sum])tr.append(text('td',v));const td=document.createElement('td');td.append(text('span',r.phase,`phase ${r.phase}`));tr.append(td,text('td',r.members.join(', ')));$('rows').append(tr);}
   if(!rows.length){const tr=document.createElement('tr');const td=text('td','等待事件进入窗口','empty');td.colSpan=6;tr.append(td);$('rows').append(tr);}
   $('commands').replaceChildren();$('command-total').textContent=report.steps.length;
-  input.commands.forEach((c,i)=>{const done=i<step,button=document.createElement('button');button.className=`command ${done?'done':''} ${i===step-1?'current':''} ${done?report.steps[i].status:''}`;button.append(text('span',String(i+1).padStart(2,'0'),'number'));const name=document.createElement('span');name.append(text('b',c.id),text('small',c.kind==='watermark'?`WATERMARK → ${c.to}`:`TRANSACTION · ${c.changes.length} changes`));button.append(name,text('span',done?labels[report.steps[i].status]:'待执行','status'));button.addEventListener('click',()=>{step=i+1;render();});$('commands').append(button);});
+  input.commands.forEach((c,i)=>{const done=i<step,button=document.createElement('button');button.className=`command ${done?'done':''} ${i===step-1?'current':''} ${done?report.steps[i].status:''}`;button.append(text('span',String(i+1).padStart(2,'0'),'number'));const name=document.createElement('span');const detail=c.kind==='watermark'?`WATERMARK → ${c.to}`:c.kind==='forget'?`FORGET · SEAL @ ${c.to}`:`TRANSACTION · ${c.changes.length} changes`;name.append(text('b',c.id),text('small',detail));button.append(name,text('span',done?labels[report.steps[i].status]:'待执行','status'));button.addEventListener('click',()=>{step=i+1;render();});$('commands').append(button);});
   $('changes').replaceChildren();$('delta-count').textContent=`${o?.deltas.length??0} 条变更`;
   if(!o)$('changes').append(text('p','从第一条命令开始，查看精确的变更前后状态。','empty'));
   else if(!o.deltas.length)$('changes').append(text('p',o.status==='accepted'?'命令已提交，没有聚合行发生变化。':narrative(o),'explanation'));

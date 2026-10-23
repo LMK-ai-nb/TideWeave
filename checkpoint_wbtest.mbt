@@ -44,6 +44,28 @@ test "checkpoint rejects forged counters and invalid replay histories" {
 }
 
 ///|
+test "checkpoint carries and verifies the frozen count" {
+  let e = Engine::new(config(Tumbling(size=10, offset=0), lateness=0))
+  ignore(e.apply(tx("seed", [Put(sample("a", 1))])))
+  ignore(e.apply(Advance(id="w", to=10)))
+  ignore(e.apply(Forget(id="f", to=10)))
+  assert_eq(e.frozen_count(), 1)
+  let restored = restore(e.checkpoint())
+  assert_eq(restored.frozen_count(), 1)
+  assert_eq(restored.events().length(), 0)
+  let original = obj(strict_json(e.checkpoint()))
+  original["frozen"] = Json::number(0)
+  assert_true(
+    try {
+      ignore(restore(Json::object(original).stringify()))
+      false
+    } catch {
+      _ => true
+    },
+  )
+}
+
+///|
 test "checkpoint suffix processing agrees with uninterrupted replay" {
   let c = config(Sliding(size=10, slide=5, offset=2), lateness=15)
   let prefix = [tx("a", [Put(sample("a", 0))]), tx("b", [Put(sample("b", 7))])]

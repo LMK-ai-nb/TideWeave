@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "config": { "window": { "kind": "tumbling", "size": 10, "offset": 0 }, "lateness": 0 },
+  "commands": [
+    { "id": "seed", "kind": "transaction", "changes": [
+      { "op": "put", "event": { "id": "a", "key": "device-A", "at": 1, "value": 5 } },
+      { "op": "put", "event": { "id": "b", "key": "device-A", "at": 2, "value": 7 } }
+    ] },
+    { "id": "watermark-10", "kind": "watermark", "to": 10 },
+    { "id": "freeze", "kind": "forget", "to": 10 },
+    { "id": "after-freeze", "kind": "transaction", "changes": [ { "op": "remove", "event_id": "a" } ] }
+  ]
+}

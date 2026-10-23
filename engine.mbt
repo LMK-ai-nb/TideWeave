@@ -88,9 +88,24 @@ pub fn Engine::within_lateness(self : Engine, at : Int32) -> Bool {
 }
 
 ///|
-/// True when the event ID is still active (not frozen) and can be corrected.
+/// True when the event is still active and none of its current windows is
+/// final. This mirrors the freeze predicate used by `Forget`. A correction
+/// that moves the event to another key can still be rejected by finality in
+/// the destination key.
 pub fn Engine::correctable(self : Engine, id : String) -> Bool {
-  self.records.contains(id)
+  if !self.records.contains(id) {
+    return false
+  }
+  let mut found = false
+  for w in self.materialized {
+    if w.members.contains(id) {
+      found = true
+      if w.phase == "final" {
+        return false
+      }
+    }
+  }
+  found
 }
 
 ///|

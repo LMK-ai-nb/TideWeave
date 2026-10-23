@@ -49,7 +49,7 @@ Frozen facts can no longer be inserted, replaced or removed, and are excluded fr
 
 ## Streaming (NDJSON)
 
-`stream_json` drives one engine session from newline-delimited JSON. The first non-blank line is a session header `{"schema_version":1,"config":{...}}`; every later non-blank line is one command object. The output is one outcome line per command followed by a `{"summary":{...}}` line carrying `rows`, active `events`, `watermark`, `version` and `checkpoint`. Blank lines are ignored.
+`stream_json` drives one engine session from newline-delimited JSON. The first non-blank line is a session header `{"schema_version":1,"config":{...}}`; every later non-blank line is one command object. The output is one outcome line per command followed by a `{"summary":{...}}` line carrying `rows`, active `events`, the `frozen` count, `watermark`, `version` and `checkpoint`. Blank lines are ignored.
 
 ```sh
 cat examples/session-stream.ndjson | node bin/tideweave.mjs stream
@@ -75,10 +75,10 @@ Protocol errors return `TideError` through the typed library; the JavaScript bri
 
 ## Restart
 
-Save the report's `checkpoint` object (or call `Engine::checkpoint`). It contains format, schema, normalized config, successful command journal, committed version and watermark. Derived rows are rebuilt, not trusted from a stored aggregate. Restore revalidates every command, checks all journal commands commit, and verifies the declared version/watermark.
+Save the report's `checkpoint` object (or call `Engine::checkpoint`). It contains format, schema, normalized config, successful command journal, committed version, watermark and the `frozen` count. Derived rows are rebuilt, not trusted from a stored aggregate. Restore revalidates every command, checks all journal commands commit, and verifies the declared version/watermark; when `frozen` is present it must also match the replayed state (older checkpoints may omit it).
 
 ```json
-{ "schema_version": 1, "checkpoint": { "format": "tideweave-checkpoint", "schema_version": 1, "config": { "window": { "kind": "session", "gap": 10 } }, "commands": [], "version": 0, "watermark": 0 }, "commands": [] }
+{ "schema_version": 1, "checkpoint": { "format": "tideweave-checkpoint", "schema_version": 1, "config": { "window": { "kind": "session", "gap": 10 } }, "commands": [], "version": 0, "watermark": 0, "frozen": 0 }, "commands": [] }
 ```
 
 This is input for the `resume` CLI / `resume_json` API. The checkpoint is neither encrypted nor signed; do not treat it as an authenticity proof. The host owns storage, atomic file replacement, access control, and external consumer checkpoints.

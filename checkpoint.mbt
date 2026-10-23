@@ -7,6 +7,7 @@ fn Engine::checkpoint_value(self : Engine) -> Json {
     "commands": @json.to_json(self.journal),
     "version": self.revision,
     "watermark": self.clock,
+    "frozen": self.frozen_count(),
   }
 }
 
@@ -20,7 +21,7 @@ pub fn Engine::checkpoint(self : Engine) -> String {
 fn restore_value(value : Json) -> Engine raise TideError {
   let f = obj(value)
   fields_only(f, [
-    "format", "schema_version", "config", "commands", "version", "watermark",
+    "format", "schema_version", "config", "commands", "version", "watermark", "frozen",
   ])
   if str(req(f, "format")) != "tideweave-checkpoint" ||
     integer(req(f, "schema_version")) != 1 {
@@ -37,6 +38,11 @@ fn restore_value(value : Json) -> Engine raise TideError {
   if engine.version() != integer(req(f, "version")) ||
     engine.watermark() != integer(req(f, "watermark")) {
     fail("checkpoint version or watermark disagrees with replayed journal")
+  }
+  if f.get("frozen") is Some(v) {
+    if integer(v) != engine.frozen_count() {
+      fail("checkpoint frozen count disagrees with replayed journal")
+    }
   }
   engine
 }

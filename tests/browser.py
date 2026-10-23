@@ -34,6 +34,12 @@ with sync_playwright() as p:
     page.wait_for_function("document.querySelector('#input').value.includes('order-1')")
     page.locator("#finish").click()
     assert page.locator("#rows").inner_text().find("18900") >= 0
+    page.locator('[data-example="state-freeze.json"]').click()
+    page.wait_for_function("document.querySelector('#input').value.includes('freeze')")
+    page.locator("#finish").click()
+    assert page.locator("#event-count").inner_text() == "0"
+    assert page.locator("#window-count").inner_text() == "1"
+    assert "封存" in page.locator("#narrative").inner_text()
     source = {"schema_version": 1, "config": {"window": {"kind": "session", "gap": 5}},
         "commands": [{"kind": "transaction", "id": "<script>alert(1)</script>", "changes": [
             {"op": "put", "event": {"id": "<img src=x onerror=alert(1)>", "key": "中文🔧", "at": 1, "value": 2}}]}]}

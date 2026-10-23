@@ -64,3 +64,22 @@ test "within_lateness is a heuristic while correctable is exact" {
   // ...even though its timestamp lies behind the watermark.
   assert_false(e.within_lateness(1))
 }
+
+///|
+test "correctable turns false once every containing window is final" {
+  let e = Engine::new(config(Tumbling(size=10, offset=0), lateness=0))
+  ignore(e.apply(Transact(id="seed", changes=[Put(sample("a", 1))])))
+  assert_true(e.correctable("a"))
+  ignore(e.apply(Advance(id="w", to=10)))
+  assert_false(e.correctable("a"))
+  assert_eq(e.events().length(), 1)
+}
+
+///|
+test "correctable is false while any containing window is final" {
+  let e = Engine::new(config(Sliding(size=10, slide=5, offset=0), lateness=0))
+  ignore(e.apply(Transact(id="seed", changes=[Put(sample("a", 6))])))
+  ignore(e.apply(Advance(id="w", to=10)))
+  assert_eq(e.rows().length(), 2)
+  assert_false(e.correctable("a"))
+}
