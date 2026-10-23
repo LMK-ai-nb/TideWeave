@@ -120,6 +120,23 @@ This is a **bounded, synchronous, single-process** embeddable state machine for 
 
 Windows/Node 24 synthetic benchmark: 4096 events, 64 keys, 32 batches, including parsing, correction, logging, checkpoint and full JSON output — median ~84 ms over 10 samples. See [BENCHMARK.md](docs/BENCHMARK.md) for environment, scope and reproduction; do not extrapolate to production throughput.
 
+## Verifiable evidence
+
+Every claim maps to runnable code or a test, not just prose:
+
+| Claim | Evidence |
+| --- | --- |
+| Session rebuild after retraction (not numeric subtraction) | `node scripts/compare_naive.mjs`; `examples/session-correction.json` |
+| Finalized windows and member facts are protected | `boundary_wbtest.mbt`, `engine_wbtest.mbt` |
+| User-defined aggregates (UDAF) | `aggregate.mbt`, `aggregate_wbtest.mbt` |
+| Watermark generation and lateness probing | `watermark.mbt`, `watermark_wbtest.mbt` |
+| Trigger (Watermark / Count) | `trigger_wbtest.mbt` |
+| State freezing and deterministic replay | `forget_wbtest.mbt`; `moon run cmd/demo` ends with `frozen=2, active=0` |
+| NDJSON streaming | `examples/session-stream.ndjson`, `tests/cli.test.mjs` |
+| Commit authorship | `node scripts/check_identity.mjs` |
+
+Full suites: `moon test --target wasm-gc` (58 tests), `node --test tests/cli.test.mjs` (10 tests).
+
 ## Originality and declaration
 
 Maintainer: Li Mingkun / `LMK-ai-nb`. An independent new repository and implementation that reuses no core from submit-guard, permscope or AgentCanary. Event time, windowing and changelogs are established concepts; the independent contribution is the combination of corrections, session splitting, transactional finality protection, downstream before-image validation and restart deduplication. No claim to have invented stream processing.

@@ -137,6 +137,23 @@ CLI 退出码：0 表示所有命令 accepted/duplicate；1 表示存在 rejecte
 
 Windows / Node 24 合成基准：4096 事件、64 key、32 批次，包含解析、状态修正、日志、检查点和完整 JSON 输出，10 次样本中位约 84 ms。环境、范围与复现命令见 [BENCHMARK.md](docs/BENCHMARK.md)，不将其外推为生产吞吐承诺。
 
+## 可核对证据
+
+每条主张都能定位到可运行的代码或测试，不必只读文字：
+
+| 主张 | 证据 |
+| --- | --- |
+| 撤回后重建会话（不是数值减法） | `node scripts/compare_naive.mjs`；`examples/session-correction.json` |
+| 终结窗口与成员事实保护 | `boundary_wbtest.mbt`、`engine_wbtest.mbt` |
+| 自定义聚合（UDAF） | `aggregate.mbt`、`aggregate_wbtest.mbt` |
+| 水位生成与迟到判定 | `watermark.mbt`、`watermark_wbtest.mbt` |
+| 触发（Watermark / Count） | `trigger_wbtest.mbt` |
+| 状态封存与确定性回放 | `forget_wbtest.mbt`；`moon run cmd/demo` 末行 `frozen=2, active=0` |
+| NDJSON 流式驱动 | `examples/session-stream.ndjson`、`tests/cli.test.mjs` |
+| 提交身份归属 | `node scripts/check_identity.mjs` |
+
+全部测试：`moon test --target wasm-gc`（58 项）、`node --test tests/cli.test.mjs`（10 项）。
+
 ## 原创性与申报
 
 维护者：李明坤 / `LMK-ai-nb`。独立新仓库与新业务实现，不复用 submit-guard、permscope 或 AgentCanary 的核心。事件时间、窗口和 changelog 是已有概念；本项目的独立贡献是修正、会话拆分、事务终结保护、下游旧值校验和重启去重的组合实现，不声称发明流处理。
