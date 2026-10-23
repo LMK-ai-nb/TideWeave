@@ -12,6 +12,11 @@
 ## 命令行演示（不需要打开浏览器）
 
 ```sh
+# 0) 类型化 API 演示（含封存）
+moon run cmd/demo
+# 末两行应看到：freeze: accepted; deltas=0 / sealed-correction: rejected
+#              frozen=2, active=0 / restored version=5, watermark=60
+
 # 1) 错误对照：只做数值增减 vs 重建会话
 node scripts/compare_naive.mjs
 

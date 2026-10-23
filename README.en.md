@@ -35,6 +35,8 @@ Requires MoonBit compiler 0.10.16+.
 moon add LMK-ai-nb/tideweave@0.1.0
 ```
 
+> **Version status:** the published `0.1.0` dates from 2026-10-20; `main` already contains the 0.2.0 features (UDAF `Measure`/`measure_window`, `Trigger`, `Forget`, NDJSON `stream`). Until 0.2.0 is published, use the repository source to try those APIs; this note will be updated after release.
+
 ```moonbit
 import { "LMK-ai-nb/tideweave" @tide }
 

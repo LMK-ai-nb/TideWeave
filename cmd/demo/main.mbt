@@ -15,6 +15,8 @@ fn main {
     @tide.Transact(id="retract-bridge", changes=[@tide.Remove("bridge")]),
     @tide.Advance(id="finalize", to=60),
     @tide.Transact(id="blocked-correction", changes=[@tide.Remove("left")]),
+    @tide.Forget(id="freeze", to=60),
+    @tide.Transact(id="sealed-correction", changes=[@tide.Remove("left")]),
   ]
   for c in commands {
     let o = e.apply(c)
@@ -22,6 +24,7 @@ fn main {
       "\{o.id}: \{o.status}; deltas=\{o.deltas.length()}; rows=\{e.rows().length()}",
     )
   }
+  println("frozen=\{e.frozen_count()}, active=\{e.events().length()}")
   let restored = @tide.restore(e.checkpoint()) catch {
     _ => abort("checkpoint restore failed")
   }
