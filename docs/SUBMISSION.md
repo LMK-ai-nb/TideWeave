@@ -54,7 +54,7 @@ Mooncakes 发布前同样必须 `moon login` 为 `LMK-ai-nb`（2026-10-24 已完
 
 ## 发布状态与后续同步
 
-**2026-10-24 已完成 `0.2.0` 发布**：`moon whoami` 返回 `LMK-ai-nb`，`moon publish` 返回 `Server status: 200 OK`；Mooncakes 索引同时存在 `0.1.0` 与 `0.2.0`，文档页 `https://mooncakes.io/docs/LMK-ai-nb/tideweave@0.2.0` 返回 200。README/README.en 的 `moon add` 版本、`moon.mod`、`package.json`、`CHANGELOG.md` 与网页版标识均已同步为 `0.2.0`。
+**2026-10-24 已完成 `0.2.0`、`0.2.1`、`0.2.2` 发布**：`moon whoami` 返回 `LMK-ai-nb`，`moon publish` 返回 `Server status: 200 OK`；Mooncakes 索引同时存在 `0.1.0`–`0.2.2`，文档页 `https://mooncakes.io/docs/LMK-ai-nb/tideweave@0.2.2` 返回 200。README/README.en 的 `moon add` 版本、`moon.mod`、`package.json`、`CHANGELOG.md` 与网页版标识均已同步为 `0.2.2`。`0.2.1` 是文档修订，`0.2.2` 修复 `correctable`、检查点 `frozen` 校验与实验室的 `forget` 支持。
 
 后续重新发布时按顺序检查：
 

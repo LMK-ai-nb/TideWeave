@@ -90,8 +90,8 @@ pub fn Engine::within_lateness(self : Engine, at : Int32) -> Bool {
 ///|
 /// True when the event is still active and none of its current windows is
 /// final. This mirrors the freeze predicate used by `Forget`. A correction
-/// that moves the event to another key can still be rejected by finality in
-/// the destination key.
+/// that moves the event to another key or timestamp can still be rejected by
+/// finality in the destination windows.
 pub fn Engine::correctable(self : Engine, id : String) -> Bool {
   if !self.records.contains(id) {
     return false
