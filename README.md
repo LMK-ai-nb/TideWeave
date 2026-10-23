@@ -108,6 +108,7 @@ moon test --target all --deny-warn
 moon build --target all --deny-warn
 moon fmt --check
 moon info
+node scripts/check_identity.mjs
 moon run cmd/demo
 node scripts/build.mjs
 node --test tests/cli.test.mjs

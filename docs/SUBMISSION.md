@@ -23,6 +23,35 @@
 | 仓库含他人提交记录 | moonbit-submit-guard | 作者审计：`git log` 12/12 提交均为 `LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`；本仓库 `git config user.name/email` 已固定为该身份 |
 | 申报书格式不支持 | bech32-kit | 严格一页 Markdown 提纲 + 提交前格式自检（见 [写作提纲](APPLICATION_TEMPLATE.md) 末尾） |
 
+## 账号与归属自检（每次提交前）
+
+八月曾因"仓库中有他人的提交记录"被驳回。本仓库固定一个身份：
+
+- 本仓库 `.git/config`：`LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`
+- 远程：`github.com/LMK-ai-nb/TideWeave`（GitHub API 返回 owner 登录名 `LMK-ai-nb`）
+- 凭据用户名：`LMK-ai-nb`
+- 全部 14 条提交的作者与提交者均为该身份
+
+自检命令：
+
+```sh
+node scripts/check_identity.mjs
+```
+
+安装防误提交钩子（每个 clone 执行一次，钩子不入库）：
+
+```sh
+node scripts/install_hooks.mjs
+```
+
+**GitHub Desktop 注意**：当前桌面端登录的是 `zhangbowen2006`，其账户邮箱是 `1416377553@qq.com`。在这个仓库提交前必须：
+
+1. 把 GitHub Desktop 切换为 `LMK-ai-nb` 账号；或
+2. 在 Repository settings → Git → Email 选择"本仓库的本地邮箱"；**不要点 "Update email"**，它会把全局配置改成 zhangbowen2006 的邮箱，影响其它仓库。
+3. 出现 "This commit will be misattributed" 时不要点 Ignore 了事——它表示这次提交会归到 zhangbowen2006。
+
+Mooncakes 发布前同样必须 `moon login` 为 `LMK-ai-nb`（当前本机登录的是 `zhangbowen2006`）。
+
 ## 发布同步（截止前必做）
 
 Mooncakes 上当前是 2026-10-20 的 `0.1.0`，不含本轮新增能力；评委点开 Mooncakes 会看到旧说明。发布前按顺序检查：

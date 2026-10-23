@@ -40,6 +40,16 @@ jobs:
       - run: moon fmt --check
       - run: moon info
       - run: git diff --exit-code -- '*.mbti'
+      - name: Audit commit authorship
+        shell: bash
+        run: |
+          bad=$(git log --no-merges --format='%an <%ae>|%cn <%ce>' | grep -v 'LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>|LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>' || true)
+          if [ -n "$bad" ]; then
+            echo "::warning title=Commit authorship::Non-standard identities found"
+            echo "$bad"
+          else
+            echo "All non-merge commits use LMK-ai-nb <noreply>."
+          fi
       - run: moon run cmd/demo
       - run: node scripts/build.mjs
       - run: node --test tests/cli.test.mjs
