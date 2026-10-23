@@ -51,10 +51,8 @@ Flink 有的窗口、水位线、UDAF、触发、状态清理我们逐项对标�
 要求编译器 **0.10.16 或更新兼容版本**。
 
 ```sh
-moon add LMK-ai-nb/tideweave@0.1.0
+moon add LMK-ai-nb/tideweave@0.2.1
 ```
-
-> **版本状态**：Mooncakes 上的 `0.1.0` 发布于 2026-10-20；本仓库 `main` 已包含 UDAF（`Measure`/`measure_window`）、`Trigger`、`Forget` 与 NDJSON `stream` 等 0.2.0 能力。`moon add` 安装的是已发布版本，**要使用这些新能力请以本仓库源码为准**；0.2.0 发布后本节会同步更新。
 
 在消费项目的 `moon.pkg` 加入：
 

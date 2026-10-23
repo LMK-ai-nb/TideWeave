@@ -1,21 +1,31 @@
-# 0.1.0 发布与独立使用证据
+# 发布与独立使用证据
 
-记录日期：2026-10-20。
+## 0.2.0 / 0.2.1（2026-10-24）
 
-## 公开交付
+- Mooncakes：[LMK-ai-nb/tideweave@0.2.1](https://mooncakes.io/docs/LMK-ai-nb/tideweave@0.2.1)。`0.2.0` 是首个包含新能力的版本；`0.2.1` 为文档修订版（代码相同），用于把 Mooncakes 页面上的 README 与安装行刷新到 0.2.x。
+- 发布校验：`moon whoami` 返回 `LMK-ai-nb`；`moon publish` 返回 `Server status: 200 OK`；文档页 HTTP 200；本地 registry 索引列出 `0.1.0`、`0.2.0`、`0.2.1`。
+- 独立消费：在 `work/consumer-020` 新模块中 `moon add --upgrade LMK-ai-nb/tideweave@0.2.1` 后，`moon check --target all --deny-warn` 通过；`moon run .` 下载发布包并输出 `seed=accepted, phase=closing` / `freeze=accepted, frozen=2, active=0` / `stream_lines=2` / `Mooncakes 0.2.1 fresh consumer OK: trigger, forget, measure_window, stream.`
+- 相对 0.1.0 新增：UDAF（`Measure`/`measure_window`）、`WatermarkTracker`、`Engine::within_lateness`/`correctable`、`Trigger`（Watermark / Count）、`Command::Forget` 状态封存、NDJSON `stream`、`Replay`/summary 的 `frozen` 计数。
+- 版本同步：`moon.mod`、`package.json`、README/README.en 的 `moon add`、`CHANGELOG.md`、网页版标识均为 `0.2.1`。
+- 检查：提交 `78364dd` 的 [CI 与 Deploy demo](https://github.com/LMK-ai-nb/TideWeave/actions) 均成功；58 项 MoonBit 测试（wasm/wasm-gc/js）、10 项 CLI/ESM 集成测试、`moon check --target all --deny-warn`、`moon fmt --check`、`python scripts/package_check.py` 全部通过。
+- 发布账号事故已处理：本机曾登录 `zhangbowen2006`，`moon publish --dry-run` 返回 `403 User mismatch`；切换为 `LMK-ai-nb` 后发布成功。复现与切换步骤见 [SUBMISSION.md](SUBMISSION.md)「切换账号的两种方式」。
+
+## 0.1.0（2026-10-20）
+
+### 公开交付
 
 - 仓库：[LMK-ai-nb/TideWeave](https://github.com/LMK-ai-nb/TideWeave)，实际默认分支 `main`。
 - 在线演示：[事件时间实验室](https://lmk-ai-nb.github.io/TideWeave/)，公开访问返回 HTTP 200；完整 Chromium 功能检查通过。
 - Mooncakes：[LMK-ai-nb/tideweave@0.1.0](https://mooncakes.io/docs/LMK-ai-nb/tideweave@0.1.0)。隔离 Moon home 的 `moon whoami` 返回 `LMK-ai-nb`；`moon publish` 返回服务器 `200 OK`。包页面 HTTP 200。
 - [v0.1.0 Release](https://github.com/LMK-ai-nb/TideWeave/releases/tag/v0.1.0)：含源码和预编译浏览器／CLI 演示的归档，Node 22+ 可直接运行演示。
 
-## 自动检查
+### 自动检查
 
 已成功完成的 [CI 运行](https://github.com/LMK-ai-nb/TideWeave/actions/runs/39292521743) 对应提交 `9c09998da836bc768f505d40ec2dd749b3338731`：Linux、macOS、Windows 的 check/test/build（wasm、wasm-gc、js、native），37 项 MoonBit 测试、8 项 CLI/ESM 集成测试、Linux Chromium 集成、格式和公共接口校验均成功。后续 main 的最新检查以 [Actions](https://github.com/LMK-ai-nb/TideWeave/actions) 为准。
 
 本机还对真实公开 Pages 地址运行了同一浏览器检查，验证逐步回放、合并／拆分／final、导出检查点、三个场景切换、注入文本和 390px 布局。
 
-## 从 Mooncakes 实际下载使用
+### 从 Mooncakes 实际下载使用
 
 在独立的新消费模块、新的 Moon home／registry 环境中，声明：
 

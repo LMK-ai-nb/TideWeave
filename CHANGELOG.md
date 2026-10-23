@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased — 2026-10-23
+## 0.2.1 — 2026-10-24
+
+- Documentation-only release: refresh the published README and the `moon add` line to the 0.2.x API surface. Code is identical to 0.2.0.
+
+## 0.2.0 — 2026-10-24
 
 - Add user-defined aggregates: `Measure`, `measure_window`, built-in count/sum/min/max/avg with validated, unique measure names.
 - Add `WatermarkTracker` (bounded out-of-orderness) plus `Engine::within_lateness` and `Engine::correctable`.

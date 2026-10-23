@@ -50,17 +50,19 @@ node scripts/install_hooks.mjs
 2. 在 Repository settings → Git → Email 选择"本仓库的本地邮箱"；**不要点 "Update email"**，它会把全局配置改成 zhangbowen2006 的邮箱，影响其它仓库。
 3. 出现 "This commit will be misattributed" 时不要点 Ignore 了事——它表示这次提交会归到 zhangbowen2006。
 
-Mooncakes 发布前同样必须 `moon login` 为 `LMK-ai-nb`（当前本机登录的是 `zhangbowen2006`）。
+Mooncakes 发布前同样必须 `moon login` 为 `LMK-ai-nb`（2026-10-24 已完成切换，`moon whoami` 返回 `LMK-ai-nb`；换机器时需重新确认）。
 
-## 发布同步（截止前必做）
+## 发布状态与后续同步
 
-Mooncakes 上当前是 2026-10-20 的 `0.1.0`，不含本轮新增能力；评委点开 Mooncakes 会看到旧说明。发布前按顺序检查：
+**2026-10-24 已完成 `0.2.0` 发布**：`moon whoami` 返回 `LMK-ai-nb`，`moon publish` 返回 `Server status: 200 OK`；Mooncakes 索引同时存在 `0.1.0` 与 `0.2.0`，文档页 `https://mooncakes.io/docs/LMK-ai-nb/tideweave@0.2.0` 返回 200。README/README.en 的 `moon add` 版本、`moon.mod`、`package.json`、`CHANGELOG.md` 与网页版标识均已同步为 `0.2.0`。
 
-1. `moon whoami` 必须显示 `LMK-ai-nb`。**当前本机登录的是 `zhangbowen2006`，发布前必须 `moon login` 切回正确账号**，否则会发布失败或落到错误命名空间（这与八月"提交记录归属"驳回同类风险）。
+后续重新发布时按顺序检查：
+
+1. `moon whoami` 必须显示 `LMK-ai-nb`。若显示其它账号，先按下方"切换到 LMK-ai-nb"处理，否则会发布失败或落到错误命名空间（这与八月"提交记录归属"驳回同类风险）。
 2. 确认 `git log` 作者仍全部是 `LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`。
-3. 将 `moon.mod` 的 `version` 从 `0.1.0` 改为 `0.2.0`，同步 README/README.en 中 `moon add` 的版本号与 `CHANGELOG.md`。
+3. 提升 `moon.mod` 的 `version`（语义化版本），并同步 README/README.en 的 `moon add` 版本号、`package.json`、`CHANGELOG.md`。
 4. `moon publish` 后打开 <https://mooncakes.io/docs/LMK-ai-nb/tideweave> 确认 README 与 API 已更新。
-5. 若发布失败或账号无法切换，保留仓库源码为准，并在申报书中说明"Mooncakes 版本同步中"，不要声称已发布新版本。
+5. 若发布失败，保留仓库源码为准，并在申报书中说明"Mooncakes 版本同步中"，不要声称已发布新版本。
 
 ### 登录失败的真实报错
 
