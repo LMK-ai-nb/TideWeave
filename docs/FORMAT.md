@@ -60,7 +60,7 @@ Exit code is 0 when every command is accepted/duplicate, 1 when any is rejected/
 
 ## Response
 
-The report includes normalized `config`, ordered `steps`, final `rows`, sorted active `events`, `watermark`, `version`, and a checkpoint object. Each step includes command `id`, `status`, current committed `version`, `watermark`, `deltas`, and `message`.
+The report includes normalized `config`, ordered `steps`, final `rows`, sorted active `events`, the `frozen` count of sealed facts, `watermark`, `version`, and a checkpoint object. Each step includes command `id`, `status`, current committed `version`, `watermark`, `deltas`, and `message`.
 
 | status | effect |
 | --- | --- |

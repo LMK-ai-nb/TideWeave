@@ -85,6 +85,7 @@ test('NDJSON stream consumes stdin, emits one outcome per command and a summary'
   const summary=lines.at(-1).summary;
   assert.equal(summary.version,5);
   assert.equal(summary.events.length,0);
+  assert.equal(summary.frozen,2);
   assert.equal(summary.checkpoint.format,'tideweave-checkpoint');
 });
 test('NDJSON stream rejects malformed lines with a structured error', () => {

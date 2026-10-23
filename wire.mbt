@@ -277,6 +277,7 @@ pub(all) struct Replay {
   steps : Array[Outcome]
   rows : Array[Window]
   events : Array[Event]
+  frozen : Int32
   watermark : Int32
   version : Int32
   checkpoint : Json
@@ -307,6 +308,7 @@ pub fn Engine::run(
     steps,
     rows: engine.rows(),
     events: engine.events(),
+    frozen: engine.frozen_count(),
     watermark: engine.watermark(),
     version: engine.version(),
     checkpoint: engine.checkpoint_value(),

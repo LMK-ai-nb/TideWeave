@@ -23,6 +23,16 @@
 | 仓库含他人提交记录 | moonbit-submit-guard | 作者审计：`git log` 12/12 提交均为 `LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`；本仓库 `git config user.name/email` 已固定为该身份 |
 | 申报书格式不支持 | bech32-kit | 严格一页 Markdown 提纲 + 提交前格式自检（见 [写作提纲](APPLICATION_TEMPLATE.md) 末尾） |
 
+## 发布同步（截止前必做）
+
+Mooncakes 上当前是 2026-10-20 的 `0.1.0`，不含本轮新增能力；评委点开 Mooncakes 会看到旧说明。发布前按顺序检查：
+
+1. `moon whoami` 必须显示 `LMK-ai-nb`。**当前本机登录的是 `zhangbowen2006`，发布前必须 `moon login` 切回正确账号**，否则会发布失败或落到错误命名空间（这与八月"提交记录归属"驳回同类风险）。
+2. 确认 `git log` 作者仍全部是 `LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`。
+3. 将 `moon.mod` 的 `version` 从 `0.1.0` 改为 `0.2.0`，同步 README/README.en 中 `moon add` 的版本号与 `CHANGELOG.md`。
+4. `moon publish` 后打开 <https://mooncakes.io/docs/LMK-ai-nb/tideweave> 确认 README 与 API 已更新。
+5. 若发布失败或账号无法切换，保留仓库源码为准，并在申报书中说明"Mooncakes 版本同步中"，不要声称已发布新版本。
+
 ## 仍须本人完成的报名操作
 
 - 在官方表单按实际情况填写往届参赛经历、是否组队、联系方式等。首次参赛分支还会要求身份／学历等证明；往届分支可复用部分资料，以页面实际显示为准。

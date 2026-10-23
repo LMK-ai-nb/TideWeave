@@ -43,6 +43,7 @@ pub fn stream_json(source : String) -> String raise TideError {
       "schema_version": 1,
       "rows": @json.to_json(engine.rows()),
       "events": @json.to_json(engine.events()),
+      "frozen": engine.frozen_count(),
       "watermark": engine.watermark(),
       "version": engine.version(),
       "checkpoint": engine.checkpoint_value(),

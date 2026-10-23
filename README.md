@@ -4,7 +4,7 @@
 
 MoonBit 事件时间窗口与修正日志引擎。迟到事件可以合并会话，撤回桥接事件可以重新拆分会话；每次原子修正输出 before/after 变更，显式水位线保护已终结事实，下游按版本检查漏接与旧值冲突。
 
-[在线实验室](https://lmk-ai-nb.github.io/TideWeave/) · [Mooncakes](https://mooncakes.io/docs/LMK-ai-nb/tideweave) · [English](README.en.md) · [语义契约](docs/SEMANTICS.md) · [Flink 能力对照](docs/FLINK_MAPPING.md) · [同类项目披露](docs/PRIOR_ART.md) · [自检证据](docs/ACCEPTANCE.md)
+[在线实验室](https://lmk-ai-nb.github.io/TideWeave/) · [Mooncakes](https://mooncakes.io/docs/LMK-ai-nb/tideweave) · [English](README.en.md) · [为什么需要修正层](docs/WHY_CORRECTION.md) · [语义契约](docs/SEMANTICS.md) · [Flink 能力对照](docs/FLINK_MAPPING.md) · [同类项目披露](docs/PRIOR_ART.md) · [自检证据](docs/ACCEPTANCE.md)
 
 ![跨平台 CI](https://github.com/LMK-ai-nb/TideWeave/actions/workflows/ci.yml/badge.svg)
 
