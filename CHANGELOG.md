@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.2 — 2026-10-24
+
+- Fix `Engine::correctable`: it now returns false when any containing window is final (previously any active event returned true, although such a correction is rejected).
+- Checkpoints record the `frozen` count and reject a mismatch; older checkpoints without the field still restore.
+- The browser laboratory renders `forget` commands, filters frozen facts from the active count, and ships a `state-freeze` scenario covered by the Chromium check.
+- Tests: 61 MoonBit across wasm/wasm-gc/js, 10 Node CLI/ESM.
+
 ## 0.2.1 — 2026-10-24
 
 - Documentation-only release: refresh the published README and the `moon add` line to the 0.2.x API surface. Code is identical to 0.2.0.

@@ -51,7 +51,7 @@ Flink 有的窗口、水位线、UDAF、触发、状态清理我们逐项对标�
 要求编译器 **0.10.16 或更新兼容版本**。
 
 ```sh
-moon add LMK-ai-nb/tideweave@0.2.1
+moon add LMK-ai-nb/tideweave@0.2.2
 ```
 
 在消费项目的 `moon.pkg` 加入：
@@ -129,7 +129,7 @@ CLI 退出码：0 表示所有命令 accepted/duplicate；1 表示存在 rejecte
 
 ## 质量与边界
 
-58 个 MoonBit 测试包括独立区间枚举 oracle、独立图连通 oracle、混合 key 状态差分、原子回滚、终结保护、检查点恢复、自定义聚合、水位生成、触发与状态封存。10 个 Node 集成测试覆盖公共协议与真实 CLI；Chromium 检查交互、导出、注入文本与 390px 手机布局。GitHub CI 在 Linux、macOS、Windows 检查 wasm、wasm-gc、js、native 四个目标。
+61 个 MoonBit 测试包括独立区间枚举 oracle、独立图连通 oracle、混合 key 状态差分、原子回滚、终结保护、检查点恢复、自定义聚合、水位生成、触发与状态封存。10 个 Node 集成测试覆盖公共协议与真实 CLI；Chromium 检查交互、导出、注入文本与 390px 手机布局。GitHub CI 在 Linux、macOS、Windows 检查 wasm、wasm-gc、js、native 四个目标。
 
 这是**有界、同步、单进程**的可嵌入状态机，适用于离线对账、边缘批次及流处理回归测试。最多 5000 活跃事件、10000 成功命令、20000 窗口、2 Mi 规范 journal 单元。状态清理是显式的：`Forget` 封存已终结事实并释放活动容量，封存事实冻结为可回放的不可变历史，不做静默驱逐。连续无限流需要宿主设计分区／批次生命周期，宿主还负责消息 IO、持久化、授权与外部消费一致性。这里不提供分布式运行时或外部 exactly-once 承诺。
 
@@ -150,7 +150,7 @@ Windows / Node 24 合成基准：4096 事件、64 key、32 批次，包含解析
 | NDJSON 流式驱动 | `examples/session-stream.ndjson`、`tests/cli.test.mjs` |
 | 提交身份归属 | `node scripts/check_identity.mjs` |
 
-全部测试：`moon test --target wasm-gc`（58 项）、`node --test tests/cli.test.mjs`（10 项）。
+全部测试：`moon test --target wasm-gc`（61 项）、`node --test tests/cli.test.mjs`（10 项）。
 
 ## 原创性与申报
 

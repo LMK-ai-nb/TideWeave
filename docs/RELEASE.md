@@ -1,10 +1,10 @@
 # 发布与独立使用证据
 
-## 0.2.0 / 0.2.1（2026-10-24）
+## 0.2.0 / 0.2.1 / 0.2.2（2026-10-24）
 
-- Mooncakes：[LMK-ai-nb/tideweave@0.2.1](https://mooncakes.io/docs/LMK-ai-nb/tideweave@0.2.1)。`0.2.0` 是首个包含新能力的版本；`0.2.1` 为文档修订版（代码相同），用于把 Mooncakes 页面上的 README 与安装行刷新到 0.2.x。
-- 发布校验：`moon whoami` 返回 `LMK-ai-nb`；`moon publish` 返回 `Server status: 200 OK`；文档页 HTTP 200；本地 registry 索引列出 `0.1.0`、`0.2.0`、`0.2.1`。
-- 独立消费：在 `work/consumer-020` 新模块中 `moon add --upgrade LMK-ai-nb/tideweave@0.2.1` 后，`moon check --target all --deny-warn` 通过；`moon run .` 下载发布包并输出 `seed=accepted, phase=closing` / `freeze=accepted, frozen=2, active=0` / `stream_lines=2` / `Mooncakes 0.2.1 fresh consumer OK: trigger, forget, measure_window, stream.`
+- Mooncakes：[LMK-ai-nb/tideweave@0.2.2](https://mooncakes.io/docs/LMK-ai-nb/tideweave@0.2.2)。`0.2.0` 是首个包含新能力的版本；`0.2.1` 为文档修订版；`0.2.2` 修复 `correctable` 语义、检查点 `frozen` 校验与网页实验室的 `forget` 支持。
+- 发布校验：`moon whoami` 返回 `LMK-ai-nb`；`moon publish` 返回 `Server status: 200 OK`；文档页 HTTP 200；本地 registry 索引列出 `0.1.0`、`0.2.0`、`0.2.1`、`0.2.2`。
+- 独立消费：在 `work/consumer-020` 新模块中 `moon add --upgrade LMK-ai-nb/tideweave@0.2.2` 后，`moon check --target all --deny-warn` 通过；`moon run .` 下载发布包并输出 `seed=accepted, phase=closing` / `correctable_after_final=false` / `freeze=accepted, frozen=2, active=0` / `stream_lines=2`。
 - 相对 0.1.0 新增：UDAF（`Measure`/`measure_window`）、`WatermarkTracker`、`Engine::within_lateness`/`correctable`、`Trigger`（Watermark / Count）、`Command::Forget` 状态封存、NDJSON `stream`、`Replay`/summary 的 `frozen` 计数。
 - 版本同步：`moon.mod`、`package.json`、README/README.en 的 `moon add`、`CHANGELOG.md`、网页版标识均为 `0.2.1`。
 - 检查：提交 `78364dd` 的 [CI 与 Deploy demo](https://github.com/LMK-ai-nb/TideWeave/actions) 均成功；58 项 MoonBit 测试（wasm/wasm-gc/js）、10 项 CLI/ESM 集成测试、`moon check --target all --deny-warn`、`moon fmt --check`、`python scripts/package_check.py` 全部通过。

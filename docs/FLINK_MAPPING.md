@@ -82,7 +82,7 @@ TideWeave 参考 Flink 的事件时间窗口、水位线、迟到容忍、触发
 
 ```sh
 moon check --target all --deny-warn
-moon test --target wasm-gc --deny-warn   # 58 项，含上述每项能力的专门测试
+moon test --target wasm-gc --deny-warn   # 61 项，含上述每项能力的专门测试
 moon build --target wasm-gc,wasm,js --deny-warn
 moon fmt --check && moon info
 node --test tests/cli.test.mjs

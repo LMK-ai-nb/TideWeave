@@ -32,7 +32,7 @@ See [Flink mapping](docs/FLINK_MAPPING.md) for a line-by-line mapping against Ap
 Requires MoonBit compiler 0.10.16+.
 
 ```sh
-moon add LMK-ai-nb/tideweave@0.2.1
+moon add LMK-ai-nb/tideweave@0.2.2
 ```
 
 ```moonbit
@@ -112,7 +112,7 @@ Every Flink windowing primitive here is implemented to parity; the correction/re
 
 ## Quality and boundaries
 
-58 MoonBit tests include an independent interval-enumeration oracle, an independent graph-connectivity oracle, mixed-key state diffs, atomic rollback, finality protection, checkpoint recovery, custom aggregation, watermark generation, trigger and state freezing. 10 Node integration tests cover the public protocol and real CLI; Chromium checks interaction, export, injected text and a 390px phone layout. GitHub CI checks wasm, wasm-gc, js and native on Linux, macOS and Windows.
+61 MoonBit tests include an independent interval-enumeration oracle, an independent graph-connectivity oracle, mixed-key state diffs, atomic rollback, finality protection, checkpoint recovery, custom aggregation, watermark generation, trigger and state freezing. 10 Node integration tests cover the public protocol and real CLI; Chromium checks interaction, export, injected text and a 390px phone layout. GitHub CI checks wasm, wasm-gc, js and native on Linux, macOS and Windows.
 
 This is a **bounded, synchronous, single-process** embeddable state machine for offline reconciliation, edge batches and stream-processing regression fixtures. At most 5000 active events, 10000 successful commands, 20000 windows, 2 Mi canonical journal units. State cleanup is explicit: `Forget` freezes finalized facts and frees active capacity; frozen facts become replayable immutable history — never silently evicted. Continuous unbounded streams require the host to design partition/batch lifecycles; the host also owns message IO, persistence, authorization and external consumption consistency. There is no distributed runtime and no external exactly-once guarantee.
 
