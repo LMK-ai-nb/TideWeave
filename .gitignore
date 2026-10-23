@@ -8,5 +8,6 @@ web/licenses/
 work/
 artifacts/
 deliverables/
+.workbuddy/
 *.tmp
 __pycache__/

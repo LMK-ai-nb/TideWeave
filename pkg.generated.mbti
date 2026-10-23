@@ -6,11 +6,23 @@ pub fn aggregate(Config, Array[Event], watermark? : Int32) -> Array[Window] rais
 
 pub fn assign_fixed(WindowSpec, Int32) -> Array[(Int32, Int32)] raise TideError
 
-pub fn config(WindowSpec, lateness? : Int32, max_events? : Int32, max_operations? : Int32) -> Config raise TideError
+pub fn average_measure() -> Measure
+
+pub fn config(WindowSpec, lateness? : Int32, max_events? : Int32, max_operations? : Int32, trigger? : Trigger) -> Config raise TideError
+
+pub fn count_measure() -> Measure
 
 pub fn decode_commands(String) -> Array[Command] raise TideError
 
 pub fn decode_config(String) -> Config raise TideError
+
+pub fn max_measure() -> Measure
+
+pub fn measure(name~ : String, identity~ : Int64, step~ : (Int64, Int64) -> Int64, finish~ : (Int64, Int64) -> Int64) -> Measure
+
+pub fn measure_window(Config, Array[Event], Array[Measure], watermark? : Int32) -> Array[MeasureWindow] raise TideError
+
+pub fn min_measure() -> Measure
 
 pub fn replay(Config, Array[Command]) -> Replay raise TideError
 
@@ -19,6 +31,10 @@ pub fn replay_json(String) -> String raise TideError
 pub fn restore(String) -> Engine raise TideError
 
 pub fn resume_json(String) -> String raise TideError
+
+pub fn stream_json(String) -> String raise TideError
+
+pub fn sum_measure() -> Measure
 
 pub fn validate_event(Event) -> Unit raise TideError
 
@@ -33,6 +49,7 @@ pub fn TideError::not_equal(Self, Self) -> Bool
 pub(all) enum Command {
   Transact(id~ : String, changes~ : Array[Mutation])
   Advance(id~ : String, to~ : Int32)
+  Forget(id~ : String, to~ : Int32)
 } derive(Eq)
 pub fn Command::equal(Self, Self) -> Bool
 pub fn Command::not_equal(Self, Self) -> Bool
@@ -44,6 +61,7 @@ pub(all) struct Config {
   lateness : Int32
   max_events : Int32
   max_operations : Int32
+  trigger : Trigger
 } derive(Eq)
 pub fn Config::equal(Self, Self) -> Bool
 pub fn Config::not_equal(Self, Self) -> Bool
@@ -62,6 +80,7 @@ pub fn Delta::to_json(Self) -> Json
 pub struct Engine {
   cfg : Config
   mut records : Map[String, Event]
+  mut frozen : Map[String, Event]
   mut materialized : Array[Window]
   mut clock : Int32
   mut revision : Int32
@@ -71,12 +90,16 @@ pub struct Engine {
 }
 pub fn Engine::apply(Self, Command) -> Outcome
 pub fn Engine::checkpoint(Self) -> String
+pub fn Engine::correctable(Self, String) -> Bool
 pub fn Engine::events(Self) -> Array[Event]
+pub fn Engine::frozen_count(Self) -> Int32
+pub fn Engine::lateness(Self) -> Int32
 pub fn Engine::new(Config) -> Self raise TideError
 pub fn Engine::rows(Self) -> Array[Window]
 pub fn Engine::run(Self, Array[Command]) -> Replay raise TideError
 pub fn Engine::version(Self) -> Int32
 pub fn Engine::watermark(Self) -> Int32
+pub fn Engine::within_lateness(Self, Int32) -> Bool
 
 pub(all) struct Event {
   id : String
@@ -87,6 +110,33 @@ pub(all) struct Event {
 pub fn Event::equal(Self, Self) -> Bool
 pub fn Event::not_equal(Self, Self) -> Bool
 pub fn Event::to_json(Self) -> Json
+
+pub(all) struct Measure {
+  name : String
+  identity : Int64
+  step : (Int64, Int64) -> Int64
+  finish : (Int64, Int64) -> Int64
+}
+
+pub(all) struct MeasureResult {
+  name : String
+  value : Int64
+} derive(Eq, ToJson)
+pub fn MeasureResult::equal(Self, Self) -> Bool
+pub fn MeasureResult::not_equal(Self, Self) -> Bool
+pub fn MeasureResult::to_json(Self) -> Json
+
+pub(all) struct MeasureWindow {
+  key : String
+  start : Int32
+  end : Int32
+  count : Int32
+  measures : Array[MeasureResult]
+  phase : String
+} derive(Eq, ToJson)
+pub fn MeasureWindow::equal(Self, Self) -> Bool
+pub fn MeasureWindow::not_equal(Self, Self) -> Bool
+pub fn MeasureWindow::to_json(Self) -> Json
 
 pub(all) enum Mutation {
   Put(Event)
@@ -121,6 +171,15 @@ pub(all) struct Replay {
 } derive(ToJson)
 pub fn Replay::to_json(Self) -> Json
 
+pub(all) enum Trigger {
+  Watermark
+  Count(threshold~ : Int32)
+} derive(Eq)
+pub fn Trigger::equal(Self, Self) -> Bool
+pub fn Trigger::not_equal(Self, Self) -> Bool
+pub fn Trigger::to_json(Self) -> Json
+pub impl ToJson for Trigger
+
 pub struct View {
   mut materialized : Array[Window]
   mut revision : Int32
@@ -131,6 +190,15 @@ pub fn View::apply(Self, Outcome) -> Unit raise TideError
 pub fn View::new() -> Self
 pub fn View::rows(Self) -> Array[Window]
 pub fn View::version(Self) -> Int32
+
+pub struct WatermarkTracker {
+  mut max_time : Int32
+  allowed_lateness : Int32
+}
+pub fn WatermarkTracker::max_time(Self) -> Int32
+pub fn WatermarkTracker::new(allowed_lateness? : Int32) -> Self raise TideError
+pub fn WatermarkTracker::observe(Self, Int32) -> Int32 raise TideError
+pub fn WatermarkTracker::value(Self) -> Int32
 
 pub(all) struct Window {
   key : String

@@ -3,6 +3,7 @@
 pub struct Engine {
   cfg : Config
   mut records : Map[String, Event]
+  mut frozen : Map[String, Event]
   mut materialized : Array[Window]
   mut clock : Int32
   mut revision : Int32
@@ -17,6 +18,7 @@ pub fn Engine::new(cfg : Config) -> Engine raise TideError {
   {
     cfg,
     records: Map([]),
+    frozen: Map([]),
     materialized: [],
     clock: 0,
     revision: 0,
@@ -35,7 +37,7 @@ fn copy_row(w : Window) -> Window {
 fn copy_command(command : Command) -> Command {
   match command {
     Transact(id~, changes~) => Transact(id~, changes=changes.copy())
-    Advance(..) => command
+    Advance(..) | Forget(..) => command
   }
 }
 
@@ -46,6 +48,8 @@ pub fn Engine::rows(self : Engine) -> Array[Window] {
 }
 
 ///|
+/// Active (still correctable) events, sorted by ID. Sealed finalized facts are
+/// excluded: they are frozen and can no longer be inserted, replaced or removed.
 pub fn Engine::events(self : Engine) -> Array[Event] {
   let result = []
   for _, e in self.records {
@@ -56,8 +60,37 @@ pub fn Engine::events(self : Engine) -> Array[Event] {
 }
 
 ///|
+/// Number of frozen (finalized) facts still retained for replay.
+pub fn Engine::frozen_count(self : Engine) -> Int32 {
+  self.frozen.length()
+}
+
+///|
 pub fn Engine::watermark(self : Engine) -> Int32 {
   self.clock
+}
+
+///|
+pub fn Engine::lateness(self : Engine) -> Int32 {
+  self.cfg.lateness
+}
+
+///|
+/// True when an event timestamp is not more than `allowed_lateness` behind the
+/// current watermark: `at + allowed_lateness >= watermark`. This is the
+/// Flink-style "late event" heuristic hosts use to decide whether to forward a
+/// correction. It is not a correctness guarantee: window finality is the
+/// authoritative gate, and a timestamp behind the watermark can still land in
+/// a window whose end lies in the future (and thus remain correctable). For an
+/// exact answer about a specific fact, use `correctable`.
+pub fn Engine::within_lateness(self : Engine, at : Int32) -> Bool {
+  at.to_int64() + self.cfg.lateness.to_int64() >= self.clock.to_int64()
+}
+
+///|
+/// True when the event ID is still active (not frozen) and can be corrected.
+pub fn Engine::correctable(self : Engine, id : String) -> Bool {
+  self.records.contains(id)
 }
 
 ///|
@@ -68,7 +101,7 @@ pub fn Engine::version(self : Engine) -> Int32 {
 ///|
 fn command_id(c : Command) -> String {
   match c {
-    Transact(id~, ..) | Advance(id~, ..) => id
+    Transact(id~, ..) | Advance(id~, ..) | Forget(id~, ..) => id
   }
 }
 
@@ -76,7 +109,7 @@ fn command_id(c : Command) -> String {
 fn validate_command(c : Command) -> Unit raise TideError {
   validate_name(command_id(c))
   match c {
-    Advance(to~, ..) =>
+    Advance(to~, ..) | Forget(to~, ..) =>
       if to < 0 || to > 2000000000 {
         fail("watermark must be in 0..2000000000")
       }
@@ -146,7 +179,7 @@ fn difference(before : Array[Window], after : Array[Window]) -> Array[Delta] {
 fn Engine::candidate(
   self : Engine,
   c : Command,
-) -> (Map[String, Event], Array[Window], Int32) raise TideError {
+) -> (Map[String, Event], Map[String, Event], Array[Window], Int32) raise TideError {
   validate_command(c)
   if self.journal_units + c.to_json().stringify().length() > 2097152 {
     fail("serialized successful journal exceeds 2 Mi UTF-16 units")
@@ -161,19 +194,62 @@ fn Engine::candidate(
       }
       let rows = self.materialized.map(w => {
         ..w,
-        phase: phase(w.end, to, self.cfg.lateness),
+        phase: phase(w.end, w.count, to, self.cfg.lateness, self.cfg.trigger),
       })
-      (self.records, rows, to)
+      (self.records, self.frozen, rows, to)
+    }
+    Forget(to~, ..) => {
+      if to < self.clock {
+        fail("watermark cannot move backwards")
+      }
+      let rows = self.materialized.map(w => {
+        ..w,
+        phase: phase(w.end, w.count, to, self.cfg.lateness, self.cfg.trigger),
+      })
+      let next_frozen : Map[String, Event] = Map([])
+      for id, e in self.frozen {
+        next_frozen[id] = e
+      }
+      let next_records : Map[String, Event] = Map([])
+      for id, e in self.records {
+        let mut found = false
+        let mut all_final = true
+        for w in rows {
+          if w.members.contains(id) {
+            found = true
+            if w.phase != "final" {
+              all_final = false
+              break
+            }
+          }
+        }
+        if found && all_final {
+          next_frozen[id] = e
+        } else {
+          next_records[id] = e
+        }
+      }
+      (next_records, next_frozen, rows, to)
     }
     Transact(changes~, ..) => {
-      let proposed : Map[String, Event] = Map([])
+      let current : Map[String, Event] = Map([])
       for id, e in self.records {
+        current[id] = e
+      }
+      for id, e in self.frozen {
+        current[id] = e
+      }
+      let proposed : Map[String, Event] = Map([])
+      for id, e in current {
         proposed[id] = e
       }
       let affected : Map[String, Bool] = Map([])
       for m in changes {
         match m {
           Put(e) => {
+            if self.frozen.contains(e.id) {
+              fail("cannot replace a sealed (finalized) fact")
+            }
             if self.records.get(e.id) is Some(old) {
               affected[old.key] = true
             }
@@ -181,6 +257,9 @@ fn Engine::candidate(
             affected[e.key] = true
           }
           Remove(id) => {
+            if self.frozen.contains(id) {
+              fail("cannot remove a sealed (finalized) fact")
+            }
             let old = match self.records.get(id) {
               Some(e) => e
               None => fail("cannot remove an unknown event")
@@ -190,7 +269,13 @@ fn Engine::candidate(
           }
         }
       }
-      if proposed.length() > self.cfg.max_events {
+      let mut active = 0
+      for id, _ in proposed {
+        if !self.frozen.contains(id) {
+          active = active + 1
+        }
+      }
+      if active > self.cfg.max_events {
         fail("active event capacity exceeded")
       }
       let groups : Map[String, Array[Event]] = Map([])
@@ -226,11 +311,13 @@ fn Engine::candidate(
       for w in self.materialized {
         if w.phase == "final" {
           if fresh.get((w.key, w.start, w.end)) != Some(w) {
-            fail("correction would change a finalized window")
+            fail(
+              "correction would change a finalized window (watermark >= end + allowed_lateness)",
+            )
           }
           // Equal sums do not permit rewriting the underlying finalized facts.
           for event_id in w.members {
-            if proposed.get(event_id) != self.records.get(event_id) {
+            if proposed.get(event_id) != current.get(event_id) {
               fail("correction would change a finalized event")
             }
           }
@@ -238,10 +325,18 @@ fn Engine::candidate(
       }
       for w in next {
         if w.phase == "final" && old.get((w.key, w.start, w.end)) != Some(w) {
-          fail("correction would create an already finalized window")
+          fail(
+            "late event would create a window already finalized by watermark + allowed_lateness",
+          )
         }
       }
-      (proposed, next, self.clock)
+      let next_records : Map[String, Event] = Map([])
+      for id, e in proposed {
+        if !self.frozen.contains(id) {
+          next_records[id] = e
+        }
+      }
+      (next_records, self.frozen, next, self.clock)
     }
   }
 }
@@ -269,7 +364,7 @@ pub fn Engine::apply(self : Engine, command : Command) -> Outcome {
       },
     }
   }
-  let (records, rows, watermark) = self.candidate(command) catch {
+  let (records, frozen, rows, watermark) = self.candidate(command) catch {
     TideError(message) =>
       return {
         id,
@@ -282,6 +377,7 @@ pub fn Engine::apply(self : Engine, command : Command) -> Outcome {
   }
   let deltas = difference(self.materialized, rows)
   self.records = records
+  self.frozen = frozen
   self.materialized = rows
   self.clock = watermark
   self.revision = self.revision + 1

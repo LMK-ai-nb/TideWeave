@@ -20,3 +20,11 @@ pub fn resume_replay(source : String) -> String {
     @tide.TideError(message) => bad_input(message)
   }
 }
+
+///|
+/// Drive one engine session from newline-delimited JSON. See `stream_json`.
+pub fn stream_ndjson(source : String) -> String {
+  @tide.stream_json(source) catch {
+    @tide.TideError(message) => bad_input(message)
+  }
+}

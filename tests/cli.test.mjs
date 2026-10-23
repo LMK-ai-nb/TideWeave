@@ -74,3 +74,22 @@ test('Unicode event IDs, keys and literal markup stay data across the bridge', (
   assert.deepEqual(r.events,[event]);
   assert.equal(r.rows[0].sum,'-1');
 });
+test('NDJSON stream consumes stdin, emits one outcome per command and a summary', () => {
+  const source=readFileSync(resolve(root,'examples','session-stream.ndjson'),'utf8');
+  const r=spawnSync(process.execPath,['bin/tideweave.mjs','stream'],{cwd:root,input:source,encoding:'utf8'});
+  assert.equal(r.status,1);
+  const lines=r.stdout.trim().split('\n').map(line=>JSON.parse(line));
+  assert.equal(lines.length,7); // 6 commands + summary
+  assert.deepEqual(lines.slice(0,-1).map(o=>o.status),['accepted','accepted','accepted','accepted','accepted','rejected']);
+  assert.equal(lines[5].message,'cannot remove a sealed (finalized) fact');
+  const summary=lines.at(-1).summary;
+  assert.equal(summary.version,5);
+  assert.equal(summary.events.length,0);
+  assert.equal(summary.checkpoint.format,'tideweave-checkpoint');
+});
+test('NDJSON stream rejects malformed lines with a structured error', () => {
+  const r=spawnSync(process.execPath,['bin/tideweave.mjs','stream'],{cwd:root,input:'{"config":{"window":{"kind":"session","gap":5}}}\n{"kind":"nope"}\n',encoding:'utf8'});
+  assert.equal(r.status,2);
+  assert.equal(JSON.parse(r.stdout).error.code,'INVALID_INPUT');
+});
+

@@ -41,6 +41,12 @@ pub extend TideError with Eq::{equal, not_equal}
 pub extend WindowSpec with ToJson::{to_json}
 
 ///|
+pub extend Trigger with Eq::{equal, not_equal}
+
+///|
+pub extend Trigger with ToJson::{to_json}
+
+///|
 pub extend Config with ToJson::{to_json}
 
 ///|
@@ -51,3 +57,15 @@ pub extend Command with ToJson::{to_json}
 
 ///|
 pub extend Replay with ToJson::{to_json}
+
+///|
+pub extend MeasureResult with Eq::{equal, not_equal}
+
+///|
+pub extend MeasureResult with ToJson::{to_json}
+
+///|
+pub extend MeasureWindow with Eq::{equal, not_equal}
+
+///|
+pub extend MeasureWindow with ToJson::{to_json}

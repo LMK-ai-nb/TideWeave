@@ -35,7 +35,28 @@ Window variants:
 | `tumbling` | `size` | `offset=0` |
 | `sliding` | `size`, `slide` | `offset=0` |
 
-Configuration defaults are `lateness=0`, `max_events=5000`, `max_operations=10000`. A transaction contains 1..128 distinct event IDs. Event fields are all required. Window sizes are positive, slide is in 1..size, offset is in 0..<slide. IDs and keys contain 1..128 UTF-16 units; they are opaque strings, including Unicode and separators. Time units must be consistent within the engine; no unit conversion is performed.
+Configuration defaults are `lateness=0`, `max_events=5000`, `max_operations=10000`, `trigger={"kind":"watermark"}`. A transaction contains 1..128 distinct event IDs. Event fields are all required. Window sizes are positive, slide is in 1..size, offset is in 0..<slide. IDs and keys contain 1..128 UTF-16 units; they are opaque strings, including Unicode and separators. Time units must be consistent within the engine; no unit conversion is performed.
+
+The `trigger` object is optional and defaults to watermark-only. `{"kind":"count","threshold":N}` additionally marks a window `closing` once it holds N events; finality still depends on the watermark plus lateness.
+
+Command kinds: `transaction` (1..128 put/remove mutations), `watermark` (advance the event-time watermark), and `forget` (advance the watermark and freeze every fact whose containing windows are all final, removing them from the active set). A `forget` command has the same shape as a watermark:
+
+```json
+{ "id": "forget-1", "kind": "forget", "to": 40 }
+```
+
+Frozen facts can no longer be inserted, replaced or removed, and are excluded from the `events` report; `frozen_count` reflects how many were frozen. Freezing is journaled, so checkpoint restore reproduces it exactly.
+
+## Streaming (NDJSON)
+
+`stream_json` drives one engine session from newline-delimited JSON. The first non-blank line is a session header `{"schema_version":1,"config":{...}}`; every later non-blank line is one command object. The output is one outcome line per command followed by a `{"summary":{...}}` line carrying `rows`, active `events`, `watermark`, `version` and `checkpoint`. Blank lines are ignored.
+
+```sh
+cat examples/session-stream.ndjson | node bin/tideweave.mjs stream
+node bin/tideweave.mjs stream examples/session-stream.ndjson --checkpoint saved.json
+```
+
+Exit code is 0 when every command is accepted/duplicate, 1 when any is rejected/conflict, 2 for malformed input or IO. The whole stream is validated before any outcome is emitted, so a malformed line fails the run atomically instead of leaving a half-applied report. This lets any line-oriented producer (shell, `jq`, a Kafka consumer script, Python) drive the engine without writing MoonBit.
 
 ## Response
 

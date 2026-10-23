@@ -99,9 +99,27 @@ fn int_or(
 }
 
 ///|
+fn read_trigger(value : Json) -> Trigger raise TideError {
+  let f = obj(value)
+  match str(req(f, "kind")) {
+    "watermark" => {
+      fields_only(f, ["kind"])
+      Watermark
+    }
+    "count" => {
+      fields_only(f, ["kind", "threshold"])
+      Count(threshold=integer(req(f, "threshold")))
+    }
+    _ => fail("unknown trigger kind")
+  }
+}
+
+///|
 fn read_config(value : Json) -> Config raise TideError {
   let f = obj(value)
-  fields_only(f, ["window", "lateness", "max_events", "max_operations"])
+  fields_only(f, [
+    "window", "lateness", "max_events", "max_operations", "trigger",
+  ])
   let w = obj(req(f, "window"))
   let kind = str(req(w, "kind"))
   let window = match kind {
@@ -123,11 +141,16 @@ fn read_config(value : Json) -> Config raise TideError {
     }
     _ => fail("unknown window kind")
   }
+  let trigger = match f.get("trigger") {
+    Some(v) => read_trigger(v)
+    None => Watermark
+  }
   config(
     window,
     lateness=int_or(f, "lateness", 0),
     max_events=int_or(f, "max_events", 5000),
     max_operations=int_or(f, "max_operations", 10000),
+    trigger~,
   )
 }
 
@@ -154,6 +177,10 @@ fn read_command(value : Json) -> Command raise TideError {
     "watermark" => {
       fields_only(f, ["kind", "id", "to"])
       Advance(id~, to=integer(req(f, "to")))
+    }
+    "forget" => {
+      fields_only(f, ["kind", "id", "to"])
+      Forget(id~, to=integer(req(f, "to")))
     }
     "transaction" => {
       fields_only(f, ["kind", "id", "changes"])
@@ -207,12 +234,21 @@ pub impl ToJson for WindowSpec with fn to_json(self) {
 }
 
 ///|
+pub impl ToJson for Trigger with fn to_json(self) {
+  match self {
+    Watermark => { "kind": "watermark" }
+    Count(threshold~) => { "kind": "count", "threshold": threshold }
+  }
+}
+
+///|
 pub impl ToJson for Config with fn to_json(self) {
   {
     "window": self.window.to_json(),
     "lateness": self.lateness,
     "max_events": self.max_events,
     "max_operations": self.max_operations,
+    "trigger": self.trigger.to_json(),
   }
 }
 
@@ -228,6 +264,7 @@ pub impl ToJson for Mutation with fn to_json(self) {
 pub impl ToJson for Command with fn to_json(self) {
   match self {
     Advance(id~, to~) => { "kind": "watermark", "id": id, "to": to }
+    Forget(id~, to~) => { "kind": "forget", "id": id, "to": to }
     Transact(id~, changes~) =>
       { "kind": "transaction", "id": id, "changes": @json.to_json(changes) }
   }

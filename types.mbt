@@ -7,11 +7,23 @@ pub(all) enum WindowSpec {
 } derive(Eq)
 
 ///|
+/// When a window is emitted early (marked `closing`) before the watermark
+/// finalizes it. `Watermark` is the default and keeps the original behavior;
+/// `Count(n)` additionally marks a window closing once it holds `n` events.
+/// Trigger affects emission/phase only — finality still depends on the
+/// watermark plus allowed lateness, so early-fired windows stay correctable.
+pub(all) enum Trigger {
+  Watermark
+  Count(threshold~ : Int32)
+} derive(Eq)
+
+///|
 pub(all) struct Config {
   window : WindowSpec
   lateness : Int32
   max_events : Int32
   max_operations : Int32
+  trigger : Trigger
 } derive(Eq)
 
 ///|
@@ -33,6 +45,7 @@ pub(all) enum Mutation {
 pub(all) enum Command {
   Transact(id~ : String, changes~ : Array[Mutation])
   Advance(id~ : String, to~ : Int32)
+  Forget(id~ : String, to~ : Int32)
 } derive(Eq)
 
 ///|
@@ -83,8 +96,9 @@ pub fn config(
   lateness~ : Int32 = 0,
   max_events~ : Int32 = 5000,
   max_operations~ : Int32 = 10000,
+  trigger~ : Trigger = Watermark,
 ) -> Config raise TideError {
-  let c = { window, lateness, max_events, max_operations, }
+  let c = { window, lateness, max_events, max_operations, trigger, }
   validate_config(c)
   c
 }
@@ -108,6 +122,13 @@ fn validate_config(c : Config) -> Unit raise TideError {
   }
   if c.max_operations < 1 || c.max_operations > 10000 {
     fail("max_operations must be in 1..10000")
+  }
+  match c.trigger {
+    Watermark => ()
+    Count(threshold~) =>
+      if threshold < 1 || threshold > 1000000000 {
+        fail("trigger count threshold must be in 1..1000000000")
+      }
   }
   match c.window {
     Tumbling(size~, offset~) => validate_fixed(size, size, offset)

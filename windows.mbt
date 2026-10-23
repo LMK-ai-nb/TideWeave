@@ -41,10 +41,24 @@ pub fn assign_fixed(
 }
 
 ///|
-fn phase(end : Int32, watermark : Int32, lateness : Int32) -> String {
+fn closing(trigger : Trigger, count : Int32) -> Bool {
+  match trigger {
+    Watermark => false
+    Count(threshold~) => count >= threshold
+  }
+}
+
+///|
+fn phase(
+  end : Int32,
+  count : Int32,
+  watermark : Int32,
+  lateness : Int32,
+  trigger : Trigger,
+) -> String {
   if watermark.to_int64() >= end.to_int64() + lateness.to_int64() {
     "final"
-  } else if watermark >= end {
+  } else if watermark >= end || closing(trigger, count) {
     "closing"
   } else {
     "open"
@@ -59,6 +73,7 @@ fn row_from_events(
   events : Array[Event],
   watermark : Int32,
   lateness : Int32,
+  trigger : Trigger,
 ) -> Window {
   let mut sum : Int64 = 0
   let mut low = events[0].value
@@ -80,7 +95,7 @@ fn row_from_events(
     min: low,
     max: high,
     members,
-    phase: phase(end, watermark, lateness),
+    phase: phase(end, events.length(), watermark, lateness, trigger),
   }
 }
 
@@ -120,7 +135,15 @@ fn fixed_rows(
   let rows = []
   for start, bucket in buckets {
     rows.push(
-      row_from_events(key, start, ends[start], bucket, watermark, c.lateness),
+      row_from_events(
+        key,
+        start,
+        ends[start],
+        bucket,
+        watermark,
+        c.lateness,
+        c.trigger,
+      ),
     )
   }
   rows.sort_by(row_order)
@@ -204,6 +227,7 @@ fn session_rows(
           component,
           watermark,
           c.lateness,
+          c.trigger,
         ),
       )
       begin = i

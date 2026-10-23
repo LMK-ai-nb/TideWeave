@@ -6,6 +6,8 @@ pub fn replay(String) -> String
 
 pub fn resume_replay(String) -> String
 
+pub fn stream_ndjson(String) -> String
+
 // Errors
 
 // Types and methods

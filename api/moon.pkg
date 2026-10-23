@@ -3,5 +3,10 @@ import {
 }
 
 options(
-  link: { "js": { "exports": [ "replay", "resume_replay" ], "format": "esm" } },
+  link: {
+    "js": {
+      "exports": [ "replay", "resume_replay", "stream_ndjson" ],
+      "format": "esm",
+    },
+  },
 )

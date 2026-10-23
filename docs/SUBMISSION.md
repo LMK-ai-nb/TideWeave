@@ -10,7 +10,18 @@
 
 本人申报须覆盖：项目名称、简介、方向与通用性、至少 3 个完整预期用例、核心功能、原创／移植／参考说明、移植来源及许可证（若适用）、公开 GitHub 仓库链接。表单要求至少 10 次有效提交，空提交、重复提交和无意义拆分不计；仓库提交数量不代表主办方已认定有效。
 
-可以用 [事实核对清单](FACTS.md) 确认实际实现，用 [空白写作提纲](APPLICATION_TEMPLATE.md) 独立组织文字。
+可以用 [事实核对清单](FACTS.md) 确认实际实现，用 [Flink 能力对照](FLINK_MAPPING.md) 逐条核对赛事关注点，用 [空白写作提纲](APPLICATION_TEMPLATE.md) 独立组织文字。
+
+## 八月初审驳回原因与对应检查
+
+八月赛季 6 份驳回通知集中在四类问题，本项目逐条自查：
+
+| 驳回原因 | 涉及项目 | 本项目对应动作 |
+| --- | --- | --- |
+| 社区已有大量类似项目 | CaCacheCheck | [同类项目披露](PRIOR_ART.md)：主动列出 4 个同类 MoonBit 包、逐项对照能力边界、说明不是分支/扩展 |
+| 与已维护项目功能重叠、未披露 | ReviewProof / CapsuleTrace / RoboPolicy | 关系声明：与 moonwatermarkkit 等无代码复用；与本人 `moonbit-submit-guard` 等无核心复用（见 PRIOR_ART「关系声明」） |
+| 仓库含他人提交记录 | moonbit-submit-guard | 作者审计：`git log` 12/12 提交均为 `LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`；本仓库 `git config user.name/email` 已固定为该身份 |
+| 申报书格式不支持 | bech32-kit | 严格一页 Markdown 提纲 + 提交前格式自检（见 [写作提纲](APPLICATION_TEMPLATE.md) 末尾） |
 
 ## 仍须本人完成的报名操作
 
