@@ -62,6 +62,38 @@ Mooncakes 上当前是 2026-10-20 的 `0.1.0`，不含本轮新增能力；评�
 4. `moon publish` 后打开 <https://mooncakes.io/docs/LMK-ai-nb/tideweave> 确认 README 与 API 已更新。
 5. 若发布失败或账号无法切换，保留仓库源码为准，并在申报书中说明"Mooncakes 版本同步中"，不要声称已发布新版本。
 
+### 登录失败的真实报错
+
+`moon publish --dry-run` 在打包通过后返回：
+
+```
+403 Forbidden, detail: User mismatch: The username in the module config file
+(LMK-ai-nb) does not match the authenticated user's username (zhangbowen2006).
+```
+
+这说明**代码与打包没有问题，只是登录账号不对**。`moon login` 走 GitHub OAuth，token 保存到 `~/.moon/credentials.json`；它没有 `--token` 参数，必须在真实终端里完成浏览器授权。
+
+### 切换到 LMK-ai-nb 的两种方式
+
+**方式 A：浏览器 OAuth（推荐）**
+
+1. 先在浏览器里退出 GitHub 的 `zhangbowen2006`，或开无痕窗口，登录 `LMK-ai-nb`。
+2. 在仓库目录打开 Git Bash / PowerShell，运行 `moon login`。
+3. 提示当前是 `zhangbowen2006`，确认切换；浏览器弹出授权页，用 `LMK-ai-nb` 授权。
+4. 看到 `API token saved to ~/.moon/credentials.json` 后，运行 `moon whoami`，必须输出 `LMK-ai-nb`。
+5. 若第 1 步浏览器仍是 `zhangbowen2006`，OAuth 会再次授权错误账号——这是最容易踩的坑。
+
+**方式 B：复用已有凭据**
+
+如果另一台机器或备份里已有 `LMK-ai-nb` 的登录，复制那份 `~/.moon/credentials.json`（Windows 为 `C:\Users\<用户>\.moon\credentials.json`）覆盖本机。文件包含 `token` 与 `username` 两个字段，`username` 必须是 `LMK-ai-nb`。不要把该文件提交到仓库或发到聊天里。
+
+登录成功后，在仓库目录执行：
+
+```sh
+moon whoami        # 必须是 LMK-ai-nb
+moon publish       # 打包、校验并发布 0.2.0
+```
+
 ## 仍须本人完成的报名操作
 
 - 在官方表单按实际情况填写往届参赛经历、是否组队、联系方式等。首次参赛分支还会要求身份／学历等证明；往届分支可复用部分资料，以页面实际显示为准。
