@@ -2,7 +2,9 @@
 
 ## 0.2.4（2026-10-29）
 
-- **发布与消费验证**：`moon whoami` = `LMK-ai-nb`，`moon publish` 返回 `Server status: 200 OK`；全新模块 `moon add --upgrade LMK-ai-nb/tideweave@0.2.4` 后 `moon check --target all --deny-warn` 与 `moon run .` 均通过（结果见下）。
+- **发布与消费验证（2026-10-29）**：`moon whoami` = `LMK-ai-nb`；`moon publish --dry-run` 返回 `202 Accepted`（`package LMK-ai-nb/tideweave version 0.2.4`），`moon publish` 返回 `Server status: 200 OK`。
+- **独立消费**：在仓库外新建模块 `moon add LMK-ai-nb/tideweave@0.2.4`（日志显示 `Downloading LMK-ai-nb/tideweave@0.2.4`，走 registry 而非本地缓存），`moon check --target all --deny-warn` 通过，`moon run .` 输出 `readme-snippet: status=accepted rows=2 restore-equal=true`。**被测代码逐字复制 README 的快速开始**——即发布出去的示例本身可编译可运行。
+- **页面核对**：`mooncakes.io/docs/LMK-ai-nb/tideweave@0.2.4` 页面版本为 0.2.4，安装行为 `moon add LMK-ai-nb/tideweave@0.2.4`，README 含「什么场景才用得到」与跨域证据行。
 - **本版内容**：只改文档与示例，不动协议与语义。
   - README（中英）把抽象的「为什么不用数据库」换成三个具体场合，并主动列出不适用场景。
   - 新增 `examples/ad-billing.json`：广告计费域，迟到曝光补传 + 无效流量撤回，度量取自 `fields.cents`；浏览器实验室新增场景 06。
