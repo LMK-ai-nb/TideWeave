@@ -122,8 +122,8 @@ node bin/tideweave.mjs stream examples/session-stream.ndjson --checkpoint saved.
 ```sh
 moon version --all
 moon check --target all --deny-warn
-moon test --target all --deny-warn
-moon build --target all --deny-warn
+moon test --target wasm-gc,wasm,js --deny-warn
+moon build --target wasm-gc,wasm,js --deny-warn
 moon fmt --check
 moon info
 node scripts/check_identity.mjs
@@ -133,15 +133,21 @@ node --test tests/cli.test.mjs
 node scripts/serve.mjs
 ```
 
-浏览器打开 `http://127.0.0.1:4174`。Node 要求 22+；没有第三方 npm 依赖。native 构建还需要平台 C 工具链，Windows CI 使用 MSVC。
+浏览器打开 `http://127.0.0.1:4174`。Node 要求 22+；没有第三方 npm 依赖。
+
+这里刻意只列 wasm-gc / wasm / js 三个目标——任何机器都能跑。`--target all` 会带上 native，需要本机有平台 C 工具链（Windows 为 MSVC Build Tools + Windows SDK），没有时 `moon test --target all` 会直接报 `requires an MSVC compiler/linker driver`。native 由 CI 在三个系统上分别验证。
 
 ```sh
 node bin/tideweave.mjs run examples/order-amendment.json --checkpoint checkpoint.json
 node bin/tideweave.mjs run examples/session-correction.json
 node scripts/benchmark.mjs
+
+# 恢复：checkpoint 不能直接喂给 resume，要嵌进请求
+node -e "const c=require('./checkpoint.json');require('fs').writeFileSync('resume.json',JSON.stringify({schema_version:1,checkpoint:c,commands:[]}))"
+node bin/tideweave.mjs resume resume.json
 ```
 
-CLI 退出码：0 表示所有命令 accepted/duplicate；1 表示存在 rejected/conflict（演示中有意触发）；2 表示输入／IO／运行错误。恢复时传入 `{schema_version:1,checkpoint:<保存的对象>,commands:[...]}` 并使用 `resume` 子命令。完整格式见 [FORMAT.md](docs/FORMAT.md)。
+CLI 退出码：0 表示所有命令 accepted/duplicate；1 表示存在 rejected/conflict（演示中有意触发）；2 表示输入／IO／运行错误。`resume` 接收的是请求对象 `{schema_version:1,checkpoint:<保存的对象>,commands:[...]}`，把裸 checkpoint 文件直接传进去会得到 `unknown or inapplicable field`。完整格式见 [FORMAT.md](docs/FORMAT.md)。
 
 可选浏览器检查：安装 Python Playwright 和 Chromium 后，在预览服务运行时执行 `python tests/browser.py`。CI 在 Linux 实际运行此检查。
 

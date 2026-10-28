@@ -107,8 +107,8 @@ The same core backs the typed MoonBit API, the strict JSON protocol, the CLI and
 
 ```sh
 moon check --target all --deny-warn
-moon test --target all --deny-warn
-moon build --target all --deny-warn
+moon test --target wasm-gc,wasm,js --deny-warn
+moon build --target wasm-gc,wasm,js --deny-warn
 moon fmt --check
 moon info
 node scripts/check_identity.mjs
@@ -118,15 +118,21 @@ node --test tests/cli.test.mjs
 node scripts/serve.mjs
 ```
 
-The browser runs at `http://127.0.0.1:4174`. Node 22+; no third-party npm dependencies. Native builds require a platform C toolchain; Windows CI uses MSVC.
+The browser runs at `http://127.0.0.1:4174`. Node 22+; no third-party npm dependencies.
+
+These targets are deliberately restricted to wasm-gc / wasm / js so the block runs anywhere. `--target all` pulls in native, which needs a platform C toolchain (MSVC Build Tools plus the Windows SDK on Windows); without one, `moon test --target all` fails with `requires an MSVC compiler/linker driver`. Native is verified on all three operating systems by CI.
 
 ```sh
 node bin/tideweave.mjs run examples/order-amendment.json --checkpoint checkpoint.json
 node bin/tideweave.mjs run examples/session-correction.json
 node scripts/benchmark.mjs
+
+# Resume: a checkpoint is not a request; wrap it first
+node -e "const c=require('./checkpoint.json');require('fs').writeFileSync('resume.json',JSON.stringify({schema_version:1,checkpoint:c,commands:[]}))"
+node bin/tideweave.mjs resume resume.json
 ```
 
-CLI exit codes: 0 for all-accepted/duplicate, 1 for rejected/conflict, 2 for input/IO/runtime errors. Resume with `{schema_version:1,checkpoint:<saved object>,commands:[...]}` and the `resume` subcommand; the full format is in [FORMAT.md](docs/FORMAT.md).
+CLI exit codes: 0 for all-accepted/duplicate, 1 for rejected/conflict, 2 for input/IO/runtime errors. `resume` takes a request object `{schema_version:1,checkpoint:<saved object>,commands:[...]}`; passing the bare checkpoint file yields `unknown or inapplicable field`. The full format is in [FORMAT.md](docs/FORMAT.md).
 
 ## Quality and boundaries
 
