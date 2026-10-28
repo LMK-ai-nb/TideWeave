@@ -60,4 +60,4 @@
 - 定位重述：README、moon.mod 描述与申报材料改为「通用事件时间窗口处理库」，修正层作为差异化能力而非选题本身。
 - 场景质疑（数据库即可更正）：新增「为什么不是在数据库里改一下」（README 与 WHY_CORRECTION.md），说明更正作为持续输入时的窗口一致性语义，以及无数据库场合（边缘网关、测试夹具、嵌入式）的必要性。
 - 任意结构化事件：见上「结构化事件」；示例 `examples/structured-events.json`（电表 watts），可执行文档 `API.mbt.md` 增加结构化事件测试。
-- 提交作者审计：`git log` 26/26 提交均为 `LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`。
+- 提交作者审计：`git log` 28/28 提交均为 `LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`。
