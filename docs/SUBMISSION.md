@@ -20,7 +20,7 @@
 | --- | --- | --- |
 | 社区已有大量类似项目 | CaCacheCheck | [同类项目披露](PRIOR_ART.md)：主动列出 4 个同类 MoonBit 包、逐项对照能力边界、说明不是分支/扩展 |
 | 与已维护项目功能重叠、未披露 | ReviewProof / CapsuleTrace / RoboPolicy | 关系声明：与 moonwatermarkkit 等无代码复用；与本人 `moonbit-submit-guard` 等无核心复用（见 PRIOR_ART「关系声明」） |
-| 仓库含他人提交记录 | moonbit-submit-guard | 作者审计：`git log` 12/12 提交均为 `LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`；本仓库 `git config user.name/email` 已固定为该身份 |
+| 仓库含他人提交记录 | moonbit-submit-guard | 作者审计：`git log` 全部提交均为 `LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`（`node scripts/check_identity.mjs` 复核）；本仓库 `git config user.name/email` 已固定为该身份 |
 | 申报书格式不支持 | bech32-kit | 严格一页 Markdown 提纲 + 提交前格式自检（见 [写作提纲](APPLICATION_TEMPLATE.md) 末尾） |
 
 ## 账号与归属自检（每次提交前）
@@ -30,7 +30,7 @@
 - 本仓库 `.git/config`：`LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`
 - 远程：`github.com/LMK-ai-nb/TideWeave`（GitHub API 返回 owner 登录名 `LMK-ai-nb`）
 - 凭据用户名：`LMK-ai-nb`
-- 全部 32 条提交的作者与提交者均为该身份
+- 全部提交的作者与提交者均为该身份（条数以 `node scripts/check_identity.mjs` 输出为准）
 
 自检命令：
 
