@@ -40,6 +40,11 @@ with sync_playwright() as p:
     assert page.locator("#event-count").inner_text() == "0"
     assert page.locator("#window-count").inner_text() == "1"
     assert "封存" in page.locator("#narrative").inner_text()
+    page.locator('[data-example="structured-events.json"]').click()
+    page.wait_for_function("document.querySelector('#input').value.includes('meter-7')")
+    page.locator("#finish").click()
+    assert page.locator("#rows").inner_text().find("243") >= 0
+    assert "watts" in page.locator("#window-kind").inner_text()
     source = {"schema_version": 1, "config": {"window": {"kind": "session", "gap": 5}},
         "commands": [{"kind": "transaction", "id": "<script>alert(1)</script>", "changes": [
             {"op": "put", "event": {"id": "<img src=x onerror=alert(1)>", "key": "中文🔧", "at": 1, "value": 2}}]}]}

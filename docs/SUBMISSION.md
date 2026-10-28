@@ -104,3 +104,13 @@ moon publish       # 打包、校验并发布 0.2.0
 - 加入赛事交流群并将昵称改为 GitHub ID。可选推荐人必须符合实际情况。
 
 开发、推送和技术自检不等于完成报名或通过验收，也不保证获奖。
+## 2026-10-28 初审驳回 · 复核要点（重申时逐条对应）
+
+| 驳回意见 | 已落实的修改 | 证据位置 |
+| --- | --- | --- |
+| 场景特定：数据库和业务系统就能更正，什么场景需要这个库 | README（中英）与 WHY_CORRECTION.md 新增「为什么不是在数据库里改一下」：更正作为持续输入时的窗口一致性——水位线处理迟到乱序、撤回后按连通分量重建、成员级 before/after、逐字节重放；并指出边缘网关/测试夹具/嵌入式等无数据库场合 | README「为什么不是在数据库里改一下」；docs/WHY_CORRECTION.md |
+| 通用性需要明确说明 | 定位重写为「通用、可嵌入的事件时间窗口处理库」：窗口/水位/UDAF/触发/状态清理为主体，修正层为差异化能力；能力边界单列 | README 首段；docs/FLINK_MAPPING.md |
+| 建议改为通用事件时间窗口处理库/计算引擎 | moon.mod description、README 标题与首段、申报材料标题全部改为该定位 | moon.mod description；README 首段 |
+| 拓展任意结构化事件，不要固定 Int32 度量 | Event 增加 fields（≤32 项键值属性，随报告/changelog/checkpoint 保留）；Config.value_field 把任意整数字段配置为度量；示例 examples/structured-events.json；浏览器实验室新增场景 05 | structured_wbtest.mbt；API.mbt.md（可执行文档）；web/index.html 场景 05 |
+
+重申材料：docs/APPLICATION_FACTS.md（事实清单）与 报名材料/ 一页版、完整版均已按上述内容更新；Mooncakes 版本引用为 0.2.3（发布依赖 moon login 切回 LMK-ai-nb）。

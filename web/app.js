@@ -61,7 +61,7 @@ function render(){
   $('commit-description').textContent=o?`${o.id} · ${labels[o.status]}`:'等待第一条命令';
   $('step-count').textContent=`${step} / ${report.steps.length}`;$('step-progress').style.width=`${report.steps.length?100*step/report.steps.length:0}%`;
   $('previous').disabled=step===0;$('reset').disabled=step===0;$('next').disabled=step===report.steps.length;$('finish').disabled=step===report.steps.length;
-  const w=input.config.window;$('window-kind').textContent=w.kind==='session'?`会话窗口 · gap ${w.gap}`:w.kind==='tumbling'?`滚动窗口 · size ${w.size}`:`滑动窗口 · ${w.size} / ${w.slide}`;
+  const w=input.config.window;$('window-kind').textContent=(w.kind==='session'?`会话窗口 · gap ${w.gap}`:w.kind==='tumbling'?`滚动窗口 · size ${w.size}`:`滑动窗口 · ${w.size} / ${w.slide}`)+(input.config.value_field?` · 度量字段 ${input.config.value_field}`:'');
   $('narrative').replaceChildren(text('span','⌁'),text('p',narrative(o)));
   draw(rows,[...events.values()],wm);
   $('rows').replaceChildren();
