@@ -108,9 +108,9 @@ moon publish       # 打包、校验并发布 0.2.0
 
 | 驳回意见 | 已落实的修改 | 证据位置 |
 | --- | --- | --- |
-| 场景特定：数据库和业务系统就能更正，什么场景需要这个库 | README（中英）与 WHY_CORRECTION.md 新增「为什么不是在数据库里改一下」：更正作为持续输入时的窗口一致性——水位线处理迟到乱序、撤回后按连通分量重建、成员级 before/after、逐字节重放；并指出边缘网关/测试夹具/嵌入式等无数据库场合 | README「为什么不是在数据库里改一下」；docs/WHY_CORRECTION.md |
-| 通用性需要明确说明 | 定位重写为「通用、可嵌入的事件时间窗口处理库」：窗口/水位/UDAF/触发/状态清理为主体，修正层为差异化能力；能力边界单列 | README 首段；docs/FLINK_MAPPING.md |
+| 场景特定：数据库和业务系统就能更正，什么场景需要这个库 | README（中英）开头新增「什么场景才用得到：三个具体场合」——按场合列表说明数据库为什么不够（无数据库的端侧、更正以流到达的计费/退款/撤单、需要交代改了什么的对账审计），并单列**不适用场景**（日终全量报表、集群吞吐、跨机高可用）以免夸大；WHY_CORRECTION.md 保留可复跑的错误对照 | README「什么场景才用得到」；docs/WHY_CORRECTION.md |
+| 通用性需要明确说明 | 定位重写为「通用、可嵌入的事件时间窗口处理库」：窗口/水位/UDAF/触发/状态清理为主体，修正层为差异化能力；能力边界单列；并以三个互不相干的域（设备会话、订单、广告计费）跑同一套语义作为实证 | README 首段与「什么场景才用得到」末段；examples/session-correction、order-amendment、ad-billing |
 | 建议改为通用事件时间窗口处理库/计算引擎 | moon.mod description、README 标题与首段、申报材料标题全部改为该定位 | moon.mod description；README 首段 |
-| 拓展任意结构化事件，不要固定 Int32 度量 | Event 增加 fields（≤32 项键值属性，随报告/changelog/checkpoint 保留）；Config.value_field 把任意整数字段配置为度量；示例 examples/structured-events.json；浏览器实验室新增场景 05 | structured_wbtest.mbt；API.mbt.md（可执行文档）；web/index.html 场景 05 |
+| 拓展任意结构化事件，不要固定 Int32 度量 | Event 增加 fields（≤32 项键值属性，随报告/changelog/checkpoint 保留）；Config.value_field 把任意整数字段配置为度量；示例 examples/structured-events.json 与 examples/ad-billing.json；浏览器实验室场景 05、06 | structured_wbtest.mbt；API.mbt.md（可执行文档）；web/index.html 场景 05/06 |
 
 重申材料：docs/APPLICATION_FACTS.md（事实清单）与 报名材料/ 一页版、完整版均已按上述内容更新；Mooncakes 版本引用为 0.2.3（发布依赖 moon login 切回 LMK-ai-nb）。

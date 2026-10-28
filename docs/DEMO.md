@@ -26,12 +26,13 @@ node scripts/compare_naive.mjs
 # 2) NDJSON 流：首行配置，逐行命令，逐行 outcome + summary
 cat examples/session-stream.ndjson | node bin/tideweave.mjs stream
 
-# 3) 五个完整场景（批处理）
+# 3) 六个完整场景（批处理）
 node bin/tideweave.mjs run examples/session-correction.json
 node bin/tideweave.mjs run examples/order-amendment.json
 node bin/tideweave.mjs run examples/sensor-backfill.json
 node bin/tideweave.mjs run examples/state-freeze.json
 node bin/tideweave.mjs run examples/structured-events.json
+node bin/tideweave.mjs run examples/ad-billing.json
 ```
 
 > **退出码约定**：`0` = 全部 accepted/duplicate；`1` = 报告含 rejected/conflict——session-correction、state-freeze 与 NDJSON 流的**末笔拒绝是刻意演示**（终结保护 / 封存边界），不是程序错误；`2` 才是无效输入或 IO 失败。

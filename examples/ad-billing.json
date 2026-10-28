@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "config": { "window": { "kind": "tumbling", "size": 60, "offset": 0 }, "lateness": 60, "value_field": "cents" },
+  "commands": [
+    { "id": "impressions", "kind": "transaction", "changes": [
+      { "op": "put", "event": { "id": "imp-1", "key": "campaign-spring", "at": 5, "fields": { "slot": "feed", "device": "ios", "cents": 12 } } },
+      { "op": "put", "event": { "id": "imp-2", "key": "campaign-spring", "at": 20, "fields": { "slot": "feed", "device": "android", "cents": 8 } } }
+    ] },
+    { "id": "close-hour", "kind": "watermark", "to": 60 },
+    { "id": "backfill", "kind": "transaction", "changes": [
+      { "op": "put", "event": { "id": "imp-3", "key": "campaign-spring", "at": 12, "fields": { "slot": "story", "device": "ios", "cents": 30 } } }
+    ] },
+    { "id": "ivt-retraction", "kind": "transaction", "changes": [
+      { "op": "remove", "event_id": "imp-2" }
+    ] },
+    { "id": "seal", "kind": "watermark", "to": 200 }
+  ]
+}

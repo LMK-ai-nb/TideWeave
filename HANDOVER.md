@@ -73,7 +73,7 @@ moon run cmd/demo                       # 类型化 API 演示
 node bin/tideweave.mjs run examples/structured-events.json
 ```
 
-五个示例：session-correction、order-amendment、sensor-backfill、state-freeze、structured-events。**其中 session-correction 与 state-freeze 的退出码是 1**——末笔拒绝是刻意演示终结保护，不是崩溃（退出码约定见 `docs/DEMO.md`）。
+六个示例：session-correction、order-amendment、sensor-backfill、state-freeze、structured-events、ad-billing。**其中 session-correction 与 state-freeze 的退出码是 1**——末笔拒绝是刻意演示终结保护，不是崩溃（退出码约定见 `docs/DEMO.md`）。
 
 ## 发布流程
 
@@ -99,7 +99,7 @@ node bin/tideweave.mjs run examples/structured-events.json
 | `api/` | JS 桥（`exports` 是白名单，新增函数必须加进去） |
 | `cmd/demo` | 类型化 API 演示 |
 | `web/` | 浏览器实验室（app.js 纯前端 + web/engine.js 由构建生成） |
-| `examples/` | 五个可复现场景 |
+| `examples/` | 六个可复现场景（设备会话、订单、传感器、封存、结构化电表、广告计费） |
 | `docs/` | 语义、格式、宿主指南、Flink 映射、同类项目、验收、发布证据 |
 
 ## 已知坑（都踩过）

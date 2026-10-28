@@ -23,14 +23,14 @@ TideWeave 将每次修正视为原子状态变更：计算候选事实 → 重�
 - 会话迟到合并、撤回拆分，count / Int64 sum / min / max 与完整成员来源。
 - 显式水位线推进与 allowed-lateness 迟到容忍；`WatermarkTracker` 提供有界乱序水位生成；`within_lateness` 探针。
 - 可插拔自定义聚合（UDAF）：`Measure` + `measure_window`，内置 count/sum/min/max/avg。
-- 任意结构化事件：事件可携带 `fields` 键值属性并随检查点与变更日志完整保留；配置 `value_field` 后，任意整数字段即可作为窗口度量（事件无需再带固定 value）。
+- 任意结构化事件：事件可携带 `fields` 键值属性并随检查点与变更日志完整保留（扁平键值，单事件 ≤32 项，嵌套结构请序列化为字符串）；配置 `value_field` 后，任意整数字段即可作为窗口度量（事件无需再带固定 value）。
 - 可配置触发：`Watermark` 或 `Count(n)` 提前发射；结果以 before/after changelog 输出，下游 `View` 原子校验。
 - 显式状态清理：`Forget` 封存已终结事实、释放活动容量、拒绝后续修正，且可经 checkpoint 精确回放。
 - open → closing → final；保护已终结窗口及原始事件，拒绝将旧事实重新打开。
 - 成功命令幂等、冲突检测；可重放检查点恢复后继续去重。
 - 稳定顺序的 before/after 日志，以及校验版本连续性、旧值与原子应用的下游 `View`。
 - 严格 JSON 协议，拒绝重复解码键、未知字段、被浮点舍入掩盖的小数和不适用参数。
-- Node CLI、五个可重现示例、交互式浏览器实验室（四个场景），共用 MoonBit 核心。
+- Node CLI、六个可重现示例、交互式浏览器实验室（六个场景），共用 MoonBit 核心。
 
 能力与 Apache Flink 事件时间窗口体系的逐条对照见 [Flink 能力对照](docs/FLINK_MAPPING.md)。
 
@@ -68,8 +68,8 @@ let cfg = @tide.config(@tide.Session(gap=10), lateness=20, value_field=Some("wat
 let engine = @tide.Engine::new(cfg)
 let view = @tide.View::new()
 let outcome = engine.apply(@tide.Transact(id="batch-1", changes=[
-  @tide.Put({ id: "left", key: "device-A", at: 0, value: 20 }),
-  @tide.Put({ id: "right", key: "device-A", at: 16, value: 35 }),
+  @tide.Put({ id: "left", key: "device-A", at: 0, value: 20, fields: Some([("watts", "20")]) }),
+  @tide.Put({ id: "right", key: "device-A", at: 16, value: 35, fields: Some([("watts", "35")]) }),
 ]))
 view.apply(outcome)
 let restored = @tide.restore(engine.checkpoint())
@@ -78,11 +78,22 @@ assert_true(restored.rows() == engine.rows())
 
 完整公开接口由 `moon info` 生成，见 [pkg.generated.mbti](pkg.generated.mbti)。`aggregate` 可批处理；`Engine` 可持续接收容量内的修正；`replay_json` / `resume_json` 提供严格文本边界。
 
-## 为什么不是"在数据库里改一下"
+## 什么场景才用得到：三个具体场合
 
-对已入库的事实做更正，当然可以是一条 UPDATE。TideWeave 处理的是**更正作为持续输入时的窗口一致性**：迟到与乱序由水位线和 allowed lateness 语义化处理；撤回后窗口边界与成员按连通分量重建，而不是依赖应用代码手写重算；每次修正输出成员级的 before/after changelog，版本与旧值可被下游校验；同一命令序列可逐字节重放。
+先说清楚这个库不做什么：它不负责"把一条已入库的记录改对"，那是 UPDATE 的活。它负责的是另一件事——**更正在没有数据库的地方、以流的形态持续到达时，窗口结果怎么保持一致**。三个具体场合：
 
-用数据库完成同样的事，需要物化视图、触发器、自研撤回流与版本校验，事件时间语义分散在应用里；在没有数据库的场合——边缘网关、桌面工具、测试夹具、嵌入式进程——更需要一个可嵌入的窗口库。TideWeave 的定位就是这一层：**通用的窗口计算，外加一般窗口库不具备的更正语义**。
+| 场合 | 数据库／业务系统的做法 | 为什么不够 |
+| --- | --- | --- |
+| 设备网关、边缘控制器、桌面工具、CI 测试夹具 | 没有数据库可改 | 现场只有一个进程，既没有 DB 也没有集群；但迟到合并、撤回拆分、窗口边界一样要算对 |
+| 广告计费、退款回冲、订单撤改 | 定时全量重算，或 UPDATE 后另补一张报表 | 更正不是一次性动作：无效流量撤回、退款、补传各自成流，乱序且会重复；照命令日志重放会二次扣减 |
+| 对账、审计、风控要求"交代改了什么" | 行级 after 值，或翻 binlog | 给不出成员级 before/after，也给不出"这两个会话本该拆开"的拓扑结论；下游没法在应用前拦下旧值 |
+
+反过来，下面几种情况**不必**用这个库，用了反而更麻烦：只要每天出一张报表、允许全量重算的，用数仓；追求集群吞吐与多租户隔离的，用 Flink；需要跨机共享状态与高可用的，本项目是单进程嵌入，不合适。
+
+同一套窗口、水位与撤回语义，已经跑通三个互不相干的域——设备会话（`session-correction`）、订单（`order-amendment`）、广告计费（`ad-billing`）。差别只在 `fields` 与 `value_field`，引擎本身不认领域，只认 `(key, at, 结构化字段)`。
+
+用数据库完成同样的事，需要物化视图、触发器、自研撤回流与版本校验，事件时间语义散落在应用层；而且 UPDATE 本身不可重放，要幂等还得另建一层命令去重——这层去重、终结保护与变更日志，正是本库提供的东西。
+
 
 ## 与社区同类项目的关系（主动披露）
 
@@ -156,6 +167,7 @@ Windows / Node 24 合成基准：4096 事件、64 key、32 批次，包含解析
 | 状态封存与确定性回放 | `forget_wbtest.mbt`；`moon run cmd/demo` 末行 `frozen=2, active=0` |
 | NDJSON 流式驱动 | `examples/session-stream.ndjson`、`tests/cli.test.mjs` |
 | 结构化事件与可配置度量 | `structured_wbtest.mbt`；`examples/structured-events.json`；`API.mbt.md`（随测试编译） |
+| 同一引擎跨域通用（设备／订单／广告计费） | `examples/session-correction.json`、`order-amendment.json`、`ad-billing.json` 三个不相干域共用同一套窗口与撤回语义 |
 | 提交身份归属 | `node scripts/check_identity.mjs` |
 
 全部测试：`moon test --target wasm-gc`（70 项）、`node --test tests/cli.test.mjs`（10 项）。

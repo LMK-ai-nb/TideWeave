@@ -17,14 +17,14 @@ Two records at 0 and 16 with gap 10 form separate sessions. A late record at 8 m
 - Session late-merge and retraction-split; count / Int64 sum / min / max and full member provenance.
 - Explicit watermark advancement and allowed-lateness tolerance; `WatermarkTracker` for bounded-out-of-orderness watermark generation; `within_lateness` probe.
 - Pluggable custom aggregation (UDAF): `Measure` + `measure_window`, with built-in count/sum/min/max/avg.
-- Arbitrary structured events: events carry `fields` key/value attributes preserved through checkpoints and changelogs; configure `value_field` to make any integer field the window measure (no fixed `value` required).
+- Arbitrary structured events: events carry `fields` key/value attributes preserved through checkpoints and changelogs (flat key/value, at most 32 entries per event; serialize nested structures into a string); configure `value_field` to make any integer field the window measure (no fixed `value` required).
 - Configurable trigger: `Watermark` or `Count(n)` early firing; before/after changelog output guarded by the downstream `View`.
 - Explicit state cleanup: `Forget` freezes finalized facts, frees active capacity, rejects later corrections, and replays deterministically through checkpoints.
 - open → closing → final; finalized windows and their member facts are protected from reopening.
 - Success-command idempotency and conflict detection; replayable checkpoint recovery preserving dedup.
 - Deterministically ordered before/after changelogs; a downstream `View` that validates version continuity, before-images and atomic application.
 - Strict JSON: duplicate decoded keys, unknown fields, fractional-token rounding and inapplicable parameters are rejected.
-- Node CLI, five reproducible examples and a four-scenario interactive browser laboratory, an interactive browser laboratory, all sharing the MoonBit core.
+- Node CLI, six reproducible examples and a six-scenario interactive browser laboratory, all sharing the MoonBit core.
 
 See [Flink mapping](docs/FLINK_MAPPING.md) for a line-by-line mapping against Apache Flink's event-time windowing capabilities.
 
@@ -43,8 +43,8 @@ let cfg = @tide.config(@tide.Session(gap=10), lateness=20, value_field=Some("wat
 let engine = @tide.Engine::new(cfg)
 let view = @tide.View::new()
 let outcome = engine.apply(@tide.Transact(id="batch-1", changes=[
-  @tide.Put({ id: "left", key: "device-A", at: 0, value: 20 }),
-  @tide.Put({ id: "right", key: "device-A", at: 16, value: 35 }),
+  @tide.Put({ id: "left", key: "device-A", at: 0, value: 20, fields: Some([("watts", "20")]) }),
+  @tide.Put({ id: "right", key: "device-A", at: 16, value: 35, fields: Some([("watts", "35")]) }),
 ]))
 view.apply(outcome)
 let restored = @tide.restore(engine.checkpoint())
@@ -78,11 +78,22 @@ node scripts/benchmark.mjs
 
 CLI exit codes: 0 for all-accepted/duplicate, 1 for rejected/conflict, 2 for input/IO/runtime errors. Resume with `{schema_version:1,checkpoint:<saved object>,commands:[...]}` and the `resume` subcommand; the full format is in [FORMAT.md](docs/FORMAT.md).
 
-## Why not just correct it in a database
+## When you actually need this: three concrete settings
 
-Amending a stored row can indeed be one UPDATE. TideWeave addresses **window consistency while corrections arrive as a stream**: late and out-of-order data are handled by watermarks and allowed lateness; after a retraction, window boundaries and members are rebuilt from connected components instead of hand-written recalculation; every correction emits a member-level before/after changelog whose versions and before-images the downstream can verify; the same command sequence replays byte for byte.
+First, what the library does not do: it does not "fix a row that is already in the database" — that is an UPDATE's job. It handles something else: **keeping windowed results consistent when corrections arrive as a stream, including where no database exists**. Three concrete settings:
 
-Doing this in a database means materialized views, triggers, a self-built retraction stream and version checks, with event-time semantics scattered through application code. And in settings without a database — edge gateways, desktop tools, test fixtures, embedded processes — an embeddable windowing library is exactly what is needed. TideWeave is that layer: **general window computation plus correction semantics most windowing libraries lack**.
+| Setting | What the database or business system does | Why it falls short |
+| --- | --- | --- |
+| Device gateways, edge controllers, desktop tools, CI fixtures | There is no database to correct | A single process on site, no DB and no cluster, yet late merges, retraction splits and window boundaries still have to be right |
+| Ad billing, refund clawbacks, order amendments | Periodic full recomputation, or UPDATE plus a separate report | Corrections are not one-off: invalid-traffic retractions, refunds and backfills each arrive as streams, out of order and duplicated; replaying the command log would double-deduct |
+| Reconciliation, audit and risk work that must explain *what changed* | Row-level after-values, or digging through binlogs | No member-level before/after, and no topology conclusion such as "these two sessions should be split"; the downstream cannot reject stale values before applying them |
+
+Conversely, several cases should **not** use this library: if you only need a daily report and a full recompute is acceptable, use a warehouse; if you need cluster throughput and multi-tenant isolation, use Flink; if you need shared state across machines and high availability, this project is a single-process embeddable engine and is the wrong shape.
+
+One set of window, watermark and retraction semantics already covers three unrelated domains — device sessions (`session-correction`), orders (`order-amendment`) and ad billing (`ad-billing`). Only `fields` and `value_field` differ; the engine knows nothing about domains, only `(key, at, structured fields)`.
+
+Doing this in a database means materialized views, triggers, a self-built retraction stream and version checks, with event-time semantics scattered through application code. And an UPDATE is not replayable on its own: idempotency needs a separate command-dedup layer. That dedup layer, the finality guards and the changelog are exactly what this library provides.
+
 
 ## Relationship to existing MoonBit packages
 
