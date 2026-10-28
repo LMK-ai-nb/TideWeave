@@ -27,8 +27,9 @@ TideWeave 是用 MoonBit 编写的**通用事件时间窗口处理库**：滚动
 本仓库和 Mooncakes 模块都绑定 `LMK-ai-nb`。**换账号前必须知道**：
 
 1. 本仓库的提交作者必须全部是 `LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`。仓库已固定 repo-local git 身份，并用 `scripts/check_identity.mjs` 全量审计；pre-commit 钩子会拦截错误身份（`node scripts/install_hooks.mjs` 安装）。
-2. Mooncakes 模块 `LMK-ai-nb/tideweave` **只有 LMK-ai-nb 能发布**。当前登录不是它时，`moon publish` 返回 `403 User mismatch`。历史上出现过两次账号漂移（`zhangbowen2006`、`DWS-ai-nb`），都导致发布被挡——换账号后第一件事是 `moon whoami`。
+2. Mooncakes 模块 `LMK-ai-nb/tideweave` **只有 LMK-ai-nb 能发布**。当前登录不是它时，`moon publish` 返回 `403 User mismatch`。历史上出现过两次账号漂移（登录到了无关账号），都导致发布被挡——换账号后第一件事是 `moon whoami`。
 3. 不要把本项目的提交、评论或发布落到其他命名空间。八月"他人提交记录"与十月"账号混用"两次驳回都属于这一类。
+4. **公开文件里只能出现 `LMK-ai-nb` 这一个身份**：不要写入任何其他账号名、他人项目署名或联系邮箱。个人联系方式只放本地 `报名材料/`（已排除出版本库），由本人直接填官方表单。
 
 ### 换 Mooncakes 账号
 

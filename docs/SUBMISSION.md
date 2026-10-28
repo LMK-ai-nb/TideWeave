@@ -30,7 +30,7 @@
 - 本仓库 `.git/config`：`LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`
 - 远程：`github.com/LMK-ai-nb/TideWeave`（GitHub API 返回 owner 登录名 `LMK-ai-nb`）
 - 凭据用户名：`LMK-ai-nb`
-- 全部 14 条提交的作者与提交者均为该身份
+- 全部 32 条提交的作者与提交者均为该身份
 
 自检命令：
 
@@ -44,11 +44,11 @@ node scripts/check_identity.mjs
 node scripts/install_hooks.mjs
 ```
 
-**GitHub Desktop 注意**：当前桌面端登录的是 `zhangbowen2006`，其账户邮箱是 `1416377553@qq.com`。在这个仓库提交前必须：
+**GitHub Desktop 注意**：桌面端若登录的不是 `LMK-ai-nb`，提交会被归到另一个账号。在这个仓库提交前必须：
 
 1. 把 GitHub Desktop 切换为 `LMK-ai-nb` 账号；或
-2. 在 Repository settings → Git → Email 选择"本仓库的本地邮箱"；**不要点 "Update email"**，它会把全局配置改成 zhangbowen2006 的邮箱，影响其它仓库。
-3. 出现 "This commit will be misattributed" 时不要点 Ignore 了事——它表示这次提交会归到 zhangbowen2006。
+2. 在 Repository settings → Git → Email 选择"本仓库的本地邮箱"；**不要点 "Update email"**，它会把全局配置改成当前登录账号的邮箱，影响其它仓库。
+3. 出现 "This commit will be misattributed" 时不要点 Ignore 了事——它表示这次提交会归到另一个账号。
 
 Mooncakes 发布前同样必须 `moon login` 为 `LMK-ai-nb`（2026-10-24 已完成切换，`moon whoami` 返回 `LMK-ai-nb`；换机器时需重新确认）。
 
@@ -70,7 +70,7 @@ Mooncakes 发布前同样必须 `moon login` 为 `LMK-ai-nb`（2026-10-24 已完
 
 ```
 403 Forbidden, detail: User mismatch: The username in the module config file
-(LMK-ai-nb) does not match the authenticated user's username (zhangbowen2006).
+(LMK-ai-nb) does not match the authenticated user's username (另一个账号).
 ```
 
 这说明**代码与打包没有问题，只是登录账号不对**。`moon login` 走 GitHub OAuth，token 保存到 `~/.moon/credentials.json`；它没有 `--token` 参数，必须在真实终端里完成浏览器授权。
@@ -79,11 +79,11 @@ Mooncakes 发布前同样必须 `moon login` 为 `LMK-ai-nb`（2026-10-24 已完
 
 **方式 A：浏览器 OAuth（推荐）**
 
-1. 先在浏览器里退出 GitHub 的 `zhangbowen2006`，或开无痕窗口，登录 `LMK-ai-nb`。
+1. 先在浏览器里退出当前的非 `LMK-ai-nb` 账号，或开无痕窗口，登录 `LMK-ai-nb`。
 2. 在仓库目录打开 Git Bash / PowerShell，运行 `moon login`。
-3. 提示当前是 `zhangbowen2006`，确认切换；浏览器弹出授权页，用 `LMK-ai-nb` 授权。
+3. 提示当前是另一个账号时，确认切换；浏览器弹出授权页，用 `LMK-ai-nb` 授权。
 4. 看到 `API token saved to ~/.moon/credentials.json` 后，运行 `moon whoami`，必须输出 `LMK-ai-nb`。
-5. 若第 1 步浏览器仍是 `zhangbowen2006`，OAuth 会再次授权错误账号——这是最容易踩的坑。
+5. 若第 1 步浏览器仍未退出旧账号，OAuth 会再次授权错误账号——这是最容易踩的坑。
 
 **方式 B：复用已有凭据**
 

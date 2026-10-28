@@ -10,7 +10,7 @@
 - 相对 0.1.0 新增：UDAF（`Measure`/`measure_window`）、`WatermarkTracker`、`Engine::within_lateness`/`correctable`、`Trigger`（Watermark / Count）、`Command::Forget` 状态封存、NDJSON `stream`、`Replay`/summary 的 `frozen` 计数。
 - 版本同步：`moon.mod`、`package.json`、README/README.en 的 `moon add`、`CHANGELOG.md`、网页版标识均为 `0.2.1`。
 - 检查：提交 `78364dd` 的 [CI 与 Deploy demo](https://github.com/LMK-ai-nb/TideWeave/actions) 均成功；58 项 MoonBit 测试（wasm/wasm-gc/js）、10 项 CLI/ESM 集成测试、`moon check --target all --deny-warn`、`moon fmt --check`、`python scripts/package_check.py` 全部通过。
-- 发布账号事故已处理：本机曾登录 `zhangbowen2006`，`moon publish --dry-run` 返回 `403 User mismatch`；切换为 `LMK-ai-nb` 后发布成功。复现与切换步骤见 [SUBMISSION.md](SUBMISSION.md)「切换账号的两种方式」。
+- 发布账号事故已处理：本机曾登录到非 `LMK-ai-nb` 账号，`moon publish --dry-run` 返回 `403 User mismatch`；切换为 `LMK-ai-nb` 后发布成功。复现与切换步骤见 [SUBMISSION.md](SUBMISSION.md)「切换账号的两种方式」。
 
 ## 0.1.0（2026-10-20）
 
