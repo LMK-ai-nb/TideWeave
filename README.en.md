@@ -24,7 +24,7 @@ Two records at 0 and 16 with gap 10 form separate sessions. A late record at 8 m
 - Success-command idempotency and conflict detection; replayable checkpoint recovery preserving dedup.
 - Deterministically ordered before/after changelogs; a downstream `View` that validates version continuity, before-images and atomic application.
 - Strict JSON: duplicate decoded keys, unknown fields, fractional-token rounding and inapplicable parameters are rejected.
-- Node CLI, three reproducible scenarios, an interactive browser laboratory, all sharing the MoonBit core.
+- Node CLI, five reproducible examples and a four-scenario interactive browser laboratory, an interactive browser laboratory, all sharing the MoonBit core.
 
 See [Flink mapping](docs/FLINK_MAPPING.md) for a line-by-line mapping against Apache Flink's event-time windowing capabilities.
 
@@ -119,7 +119,7 @@ Every Flink windowing primitive here is implemented to parity; the correction/re
 
 ## Quality and boundaries
 
-67 MoonBit tests include an independent interval-enumeration oracle, an independent graph-connectivity oracle, mixed-key state diffs, atomic rollback, finality protection, checkpoint recovery, custom aggregation, watermark generation, trigger and state freezing. 10 Node integration tests cover the public protocol and real CLI; Chromium checks interaction, export, injected text and a 390px phone layout. GitHub CI checks wasm, wasm-gc, js and native on Linux, macOS and Windows.
+68 MoonBit tests include an independent interval-enumeration oracle, an independent graph-connectivity oracle, mixed-key state diffs, atomic rollback, finality protection, checkpoint recovery, custom aggregation, watermark generation, trigger and state freezing. 10 Node integration tests cover the public protocol and real CLI; Chromium checks interaction, export, injected text and a 390px phone layout. GitHub CI checks wasm, wasm-gc, js and native on Linux, macOS and Windows.
 
 This is a **bounded, synchronous, single-process** embeddable state machine for offline reconciliation, edge batches and stream-processing regression fixtures. At most 5000 active events, 10000 successful commands, 20000 windows, 2 Mi canonical journal units. State cleanup is explicit: `Forget` freezes finalized facts and frees active capacity; frozen facts become replayable immutable history — never silently evicted. Continuous unbounded streams require the host to design partition/batch lifecycles; the host also owns message IO, persistence, authorization and external consumption consistency. There is no distributed runtime and no external exactly-once guarantee.
 

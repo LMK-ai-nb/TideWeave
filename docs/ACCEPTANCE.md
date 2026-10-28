@@ -10,7 +10,7 @@
 | 独立新项目 | 2026-10-20 创建的 TideWeave；父历史不包含旧项目，业务核心与 submit-guard/permscope/AgentCanary 不同 |
 | 有效工程 | `moon.mod` 名称 `LMK-ai-nb/tideweave`，原生 MoonBit 库、typed demo、ESM bridge |
 | 编译检查 | `moon check --target all --deny-warn` 通过 |
-| 测试 | 67 项 MoonBit 测试（包括可执行 API 文档）；10 项公共 CLI/ESM 集成测试；真实 Chromium 检查 |
+| 测试 | 68 项 MoonBit 测试（包括可执行 API 文档）；10 项公共 CLI/ESM 集成测试；真实 Chromium 检查 |
 | 多目标 | Linux/macOS/Windows，wasm、wasm-gc、js、native，远程 CI 成功，见 [CI](https://github.com/LMK-ai-nb/TideWeave/actions/workflows/ci.yml) |
 | 本地目标 | Windows 本机 wasm、wasm-gc、js 通过；最新 native 使用 MSVC 的 Windows CI 验证，未把本机缺少 SDK 当作本地成功 |
 | 格式与 API | `moon fmt --check`、`moon info` 与已提交 `.mbti` 核对 |
@@ -31,6 +31,7 @@
 - 状态机：合并、拆分、跨 key 替换、ID 冲突、缺失撤回、容量回滚、水位倒退、部分滑动窗口 final、等 SUM 修改底层事实、撤回产生过期子窗口与原子替代。
 - 一致性：180 步混合 key 轨迹，批处理聚合、引擎物化视图和下游 View 比对；丢版本／错误 before image 整笔拒绝。
 - 恢复：连续运行与检查点加后缀一致，恢复后重试去重，伪造计数和不可提交 journal 拒绝。
+- 结构化事件：fields 排序序列化、随检查点/报告完整保留、`value_field` 驱动聚合与 UDAF、缺失度量字段整笔拒绝；专用测试与 JSON 路径断言。
 - 适配器：原始 JSON 保留重复键和数字拼写，CLI 跨进程恢复与退出码检查；浏览器实际导出并读取检查点，验证没有将拒绝命令写进成功日志。
 
 ## 2026-10-23 补充（针对初审驳回的 Flink 能力清单）
@@ -44,7 +45,7 @@
 - 提交作者审计：`git log` 12/12 提交均为 `LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`，无他人提交记录；本仓库 `git config user.name/email` 已固定。
 - Flink 对照：见 [FLINK_MAPPING.md](FLINK_MAPPING.md)，逐条回应驳回 5 点，并附"独立价值"与"能力边界"诚实声明。
 
-以上逐项均有对应 `.mbt` 测试，`moon test --target wasm-gc` 67/67 通过，`moon check --target all --deny-warn` 全绿。
+以上逐项均有对应 `.mbt` 测试，`moon test --target wasm-gc` 68/68 通过，`moon check --target all --deny-warn` 全绿。
 
 ## 提交材料仍需本人处理
 
@@ -53,3 +54,10 @@
 3. 本人阅读确认诚信承诺、完成提交、保存回执，加入赛事群并将昵称改为 GitHub ID。
 
 发布包、独立消费与最终交付信息以 [发布记录](RELEASE.md) 为准。
+
+## 2026-10-28 补充（针对本次初审驳回）
+
+- 定位重述：README、moon.mod 描述与申报材料改为「通用事件时间窗口处理库」，修正层作为差异化能力而非选题本身。
+- 场景质疑（数据库即可更正）：新增「为什么不是在数据库里改一下」（README 与 WHY_CORRECTION.md），说明更正作为持续输入时的窗口一致性语义，以及无数据库场合（边缘网关、测试夹具、嵌入式）的必要性。
+- 任意结构化事件：见上「结构化事件」；示例 `examples/structured-events.json`（电表 watts），可执行文档 `API.mbt.md` 增加结构化事件测试。
+- 提交作者审计：`git log` 26/26 提交均为 `LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`。

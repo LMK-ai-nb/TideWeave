@@ -30,7 +30,7 @@ TideWeave 将每次修正视为原子状态变更：计算候选事实 → 重�
 - 成功命令幂等、冲突检测；可重放检查点恢复后继续去重。
 - 稳定顺序的 before/after 日志，以及校验版本连续性、旧值与原子应用的下游 `View`。
 - 严格 JSON 协议，拒绝重复解码键、未知字段、被浮点舍入掩盖的小数和不适用参数。
-- Node CLI、三个可重现用例、交互式浏览器实验室，共用 MoonBit 核心。
+- Node CLI、五个可重现示例、交互式浏览器实验室（四个场景），共用 MoonBit 核心。
 
 能力与 Apache Flink 事件时间窗口体系的逐条对照见 [Flink 能力对照](docs/FLINK_MAPPING.md)。
 
@@ -157,7 +157,7 @@ Windows / Node 24 合成基准：4096 事件、64 key、32 批次，包含解析
 | NDJSON 流式驱动 | `examples/session-stream.ndjson`、`tests/cli.test.mjs` |
 | 提交身份归属 | `node scripts/check_identity.mjs` |
 
-全部测试：`moon test --target wasm-gc`（67 项）、`node --test tests/cli.test.mjs`（10 项）。
+全部测试：`moon test --target wasm-gc`（68 项）、`node --test tests/cli.test.mjs`（10 项）。
 
 ## 原创性与申报
 
