@@ -113,4 +113,4 @@ moon publish       # 打包、校验并发布 0.2.0
 | 建议改为通用事件时间窗口处理库/计算引擎 | moon.mod description、README 标题与首段、申报材料标题全部改为该定位 | moon.mod description；README 首段 |
 | 拓展任意结构化事件，不要固定 Int32 度量 | Event 增加 fields（≤32 项键值属性，随报告/changelog/checkpoint 保留）；Config.value_field 把任意整数字段配置为度量；示例 examples/structured-events.json 与 examples/ad-billing.json；浏览器实验室场景 05、06 | structured_wbtest.mbt；API.mbt.md（可执行文档）；web/index.html 场景 05/06 |
 
-重申材料：docs/APPLICATION_FACTS.md（事实清单）与 报名材料/ 一页版、完整版均已按上述内容更新；Mooncakes 版本引用为 0.2.3（发布依赖 moon login 切回 LMK-ai-nb）。
+重申材料：docs/APPLICATION_FACTS.md（事实清单）与 报名材料/ 一页版、完整版均已按上述内容更新；Mooncakes 版本引用为 0.2.4（发布依赖 moon login 切回 LMK-ai-nb）。

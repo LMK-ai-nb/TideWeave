@@ -46,7 +46,7 @@ Every Flink windowing primitive here is implemented to parity; the correction/re
 Requires MoonBit compiler 0.10.16+.
 
 ```sh
-moon add LMK-ai-nb/tideweave@0.2.3
+moon add LMK-ai-nb/tideweave@0.2.4
 ```
 
 ```moonbit

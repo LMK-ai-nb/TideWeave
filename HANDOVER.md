@@ -1,6 +1,6 @@
 # TideWeave 交接说明
 
-最后更新：2026-10-29 ｜ 当前版本：**0.2.3** ｜ 维护者：LMK-ai-nb
+最后更新：2026-10-29 ｜ 当前版本：**0.2.4** ｜ 维护者：LMK-ai-nb
 
 这份文档给接手人（或未来的自己）：项目是什么、现在在哪、怎么跑、怎么发、有哪些坑、还剩什么。
 
@@ -11,7 +11,7 @@ TideWeave 是用 MoonBit 编写的**通用事件时间窗口处理库**：滚动
 当前状态（2026-10-29）：
 
 - 70 项 MoonBit 测试（wasm / wasm-gc / js 各 70）+ 10 项 Node CLI/ESM 测试，CI 三系统四目标全绿
-- Mooncakes `0.2.3` 已发布，并在全新消费模块中下载、编译、运行验证
+- Mooncakes `0.2.4` 已发布，并在全新消费模块中下载、编译、运行验证
 - 在线实验室 5 个场景（含结构化电表、终结后封存）
 - 代码、文档、发布证据全部就绪；**唯一未完成的是申报书正文**（须申请人本人撰写）
 
@@ -19,7 +19,7 @@ TideWeave 是用 MoonBit 编写的**通用事件时间窗口处理库**：滚动
 
 - 仓库：https://github.com/LMK-ai-nb/TideWeave
 - 实验室：https://lmk-ai-nb.github.io/TideWeave/
-- Mooncakes：https://mooncakes.io/docs/LMK-ai-nb/tideweave@0.2.3
+- Mooncakes：https://mooncakes.io/docs/LMK-ai-nb/tideweave@0.2.4
 - CI：https://github.com/LMK-ai-nb/TideWeave/actions
 
 ## 账号与身份（最重要，先读）

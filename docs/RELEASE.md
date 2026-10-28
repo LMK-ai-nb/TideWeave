@@ -1,5 +1,16 @@
 # 发布与独立使用证据
 
+## 0.2.4（2026-10-29）
+
+- **发布与消费验证**：`moon whoami` = `LMK-ai-nb`，`moon publish` 返回 `Server status: 200 OK`；全新模块 `moon add --upgrade LMK-ai-nb/tideweave@0.2.4` 后 `moon check --target all --deny-warn` 与 `moon run .` 均通过（结果见下）。
+- **本版内容**：只改文档与示例，不动协议与语义。
+  - README（中英）把抽象的「为什么不用数据库」换成三个具体场合，并主动列出不适用场景。
+  - 新增 `examples/ad-billing.json`：广告计费域，迟到曝光补传 + 无效流量撤回，度量取自 `fields.cents`；浏览器实验室新增场景 06。
+  - 修复快速开始代码块（`Event` 字面量补 `fields`），此前照抄会编译失败。
+  - 验证块改用 wasm-gc / wasm / js 三目标：`--target all` 在无 C 工具链的机器上会失败，而原文正是这么写的。
+  - 结构化事件明确标注边界：扁平键值、单事件 ≤32 项。
+- **发布动机**：Mooncakes 页面渲染的是发布时的 README，`0.2.3` 页面里仍是不可编译的示例，故发 patch 版刷新页面，不改语义。
+
 ## 0.2.0 – 0.2.3（2026-10-24 / 10-28）
 
 - **0.2.3 发布与消费验证（2026-10-28）**：`moon publish` 返回 `Server status: 200 OK`；Mooncakes 页面显示新描述与 `value_field` 文档；`work/consumer-020` 升级到 0.2.3 后 `moon check --target all --deny-warn` 通过，运行输出 `structured=accepted, sum=145, model=PM-210`（结构化事件从发布包直接验证）与 `correctable_after_final=false`。

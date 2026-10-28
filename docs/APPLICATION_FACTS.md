@@ -94,7 +94,7 @@ TideWeave 得到：
 
 - 仓库：https://github.com/LMK-ai-nb/TideWeave
 - 在线实验室：https://lmk-ai-nb.github.io/TideWeave/
-- Mooncakes：https://mooncakes.io/docs/LMK-ai-nb/tideweave@0.2.3
+- Mooncakes：https://mooncakes.io/docs/LMK-ai-nb/tideweave@0.2.4
 - 语义契约：`docs/SEMANTICS.md`
 - 为什么需要修正层：`docs/WHY_CORRECTION.md`
 - 同类项目披露：`docs/PRIOR_ART.md`

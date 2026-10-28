@@ -52,7 +52,7 @@ Flink 有的窗口、水位线、UDAF、触发、状态清理我们逐项对标�
 要求编译器 **0.10.16 或更新兼容版本**。
 
 ```sh
-moon add LMK-ai-nb/tideweave@0.2.3
+moon add LMK-ai-nb/tideweave@0.2.4
 ```
 
 在消费项目的 `moon.pkg` 加入：

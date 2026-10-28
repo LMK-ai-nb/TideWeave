@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.4 — 2026-10-29
 
 - Docs: replace the abstract database objection with three named settings, each paired with the mechanism that makes an UPDATE insufficient, plus an explicit list of cases where this library is the wrong tool.
 - New example `examples/ad-billing.json`: late impression backfill and an invalid-traffic retraction in a billing window, driven by `fields.cents`. Wired into the browser laboratory as scenario 06.
