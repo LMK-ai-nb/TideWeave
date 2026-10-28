@@ -21,7 +21,7 @@
 | 场景三 | 传感器补传与校准同时修正多个重叠窗口 |
 | 提交作者 | `git log` 12/12 均为 `LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`；本仓库 git 作者已固定，无他人提交 |
 | 同类项目 | 主动披露 moonwatermarkkit / moon-stream-quality / moon-distinct-sketch / mooncep；无代码复用、非分支/扩展；见 [PRIOR_ART.md](PRIOR_ART.md) |
-| 测试 | 61 项 MoonBit（区间枚举 oracle、图连通 oracle、状态差分、UDAF、水位、触发、封存、边界、CLI 及真实浏览器） |
+| 测试 | 67 项 MoonBit（区间枚举 oracle、图连通 oracle、状态差分、UDAF、水位、触发、封存、边界、CLI 及真实浏览器） |
 | 许可证 | 原创代码 MIT；编译分发保留 MoonBit core 的许可证和 NOTICE |
 | 容量 | 5000 活跃事件、10000 成功命令、2 Mi journal 单元、20000 聚合窗口 |
 | 范围 | 有界、同步、单进程、整数时间；宿主负责 IO、持久化、授权和连续任务生命周期；不提供分布式运行时或外部 exactly-once |

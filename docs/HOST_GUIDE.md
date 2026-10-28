@@ -71,5 +71,5 @@ cat examples/session-stream.ndjson | node bin/tideweave.mjs stream
 
 - 单进程、同步、有界：最多 5000 活跃事件、10000 成功命令、20000 窗口。
 - 事件时间为调用方选择的整数刻度，不读墙钟；`WatermarkTracker` 只是 `max(事件时间) - allowed_lateness`。
-- 单一 Int32 度量。多指标用 `measure_window` 派生（自定义 `Measure`），或每指标一个引擎；不支持任意结构化负载。
+- 事件可携带任意结构化 `fields`（键值属性，≤32 项），并通过配置 `value_field` 把任意整数字段作为窗口度量；多指标可用 `measure_window` 派生或每指标一个引擎。
 - 不提供分布式运行时、消息队列、持久化与外部 exactly-once；这些由宿主负责。

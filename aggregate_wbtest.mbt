@@ -2,9 +2,9 @@
 test "built-in measures reproduce the engine window profile" {
   let c = config(Tumbling(size=10, offset=0), lateness=5)
   let events = [
-    { id: "a", key: "k", at: 0, value: 2, },
-    { id: "b", key: "k", at: 1, value: 4, },
-    { id: "c", key: "k", at: 9, value: 9, },
+    { id: "a", key: "k", at: 0, value: 2, fields: None, },
+    { id: "b", key: "k", at: 1, value: 4, fields: None, },
+    { id: "c", key: "k", at: 9, value: 9, fields: None, },
   ]
   let rows = measure_window(
     c,
@@ -30,9 +30,9 @@ test "built-in measures reproduce the engine window profile" {
 test "custom measures fold arbitrary formulas over one window" {
   let c = config(Session(gap=10))
   let events = [
-    { id: "a", key: "k", at: 0, value: 1, },
-    { id: "b", key: "k", at: 3, value: 2, },
-    { id: "c", key: "k", at: 6, value: 3, },
+    { id: "a", key: "k", at: 0, value: 1, fields: None, },
+    { id: "b", key: "k", at: 3, value: 2, fields: None, },
+    { id: "c", key: "k", at: 6, value: 3, fields: None, },
   ]
   // Sum of squares: identity 0, step acc + v*v, finish identity.
   let squares = measure(
@@ -94,8 +94,8 @@ test "built-in min and max measures return zero for empty input" {
 test "measure_window shares assignment and session grouping with the engine" {
   let c = config(Sliding(size=10, slide=4, offset=1))
   let events = [
-    { id: "a", key: "k", at: 0, value: 1, },
-    { id: "b", key: "k", at: 3, value: 1, },
+    { id: "a", key: "k", at: 0, value: 1, fields: None, },
+    { id: "b", key: "k", at: 3, value: 1, fields: None, },
   ]
   let rows = measure_window(c, events, [count_measure()])
   let native = aggregate(c, events)

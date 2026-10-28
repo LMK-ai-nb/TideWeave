@@ -35,7 +35,7 @@ pub fn stream_json(source : String) -> String raise TideError {
   let engine = Engine::new(c)
   let out : Array[String] = []
   for i in 1..<lines.length() {
-    let cmd = read_command(strict_json(lines[i]))
+    let cmd = read_command(strict_json(lines[i]), c.value_field)
     out.push(engine.apply(cmd).to_json().stringify())
   }
   let summary : Json = {

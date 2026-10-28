@@ -55,7 +55,7 @@ pub fn Engine::events(self : Engine) -> Array[Event] {
   for _, e in self.records {
     result.push(e)
   }
-  result.sort_by(fn(a, b) { a.id.compare(b.id) })
+  result.sort_by(fn(a, b) { a.id.lexical_compare(b.id) })
   result
 }
 

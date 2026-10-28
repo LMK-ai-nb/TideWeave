@@ -118,7 +118,7 @@ fn read_trigger(value : Json) -> Trigger raise TideError {
 fn read_config(value : Json) -> Config raise TideError {
   let f = obj(value)
   fields_only(f, [
-    "window", "lateness", "max_events", "max_operations", "trigger",
+    "window", "lateness", "max_events", "max_operations", "trigger", "value_field",
   ])
   let w = obj(req(f, "window"))
   let kind = str(req(w, "kind"))
@@ -145,31 +145,108 @@ fn read_config(value : Json) -> Config raise TideError {
     Some(v) => read_trigger(v)
     None => Watermark
   }
+  let value_field = match f.get("value_field") {
+    Some(v) => Some(str(v))
+    None => None
+  }
   config(
     window,
     lateness=int_or(f, "lateness", 0),
     max_events=int_or(f, "max_events", 5000),
     max_operations=int_or(f, "max_operations", 10000),
     trigger~,
+    value_field~,
   )
 }
 
 ///|
-fn read_event(value : Json) -> Event raise TideError {
+/// Structured event attributes: accept a JSON object (string, integer or
+/// boolean values) or a canonical array of `[key, value]` pairs. Stored
+/// sorted by key so serialization is deterministic.
+fn parse_fields(value : Json) -> Array[(String, String)]? raise TideError {
+  let out : Array[(String, String)] = []
+  match value {
+    Object(entries) => {
+      let count = entries.values().count()
+      if count > 32 {
+        fail("event fields capacity exceeded (max 32)")
+      }
+      for k, v in entries {
+        validate_name(k)
+        let s = match v {
+          String(s) => s
+          True => "true"
+          False => "false"
+          _ => {
+            let n = integer(v) catch {
+              _ =>
+                fail(
+                  "structured field values must be strings, integers or booleans",
+                )
+            }
+            n.to_string()
+          }
+        }
+        if s.length() > 1024 {
+          fail("structured field values must be at most 1024 UTF-16 units")
+        }
+        out.push((k, s))
+      }
+    }
+    Array(pairs) => {
+      if pairs.length() > 32 {
+        fail("event fields capacity exceeded (max 32)")
+      }
+      for pair in pairs {
+        let kv = arr(pair, 2)
+        if kv.length() != 2 {
+          fail("structured field pairs must be [key, value]")
+        }
+        let k = str(kv[0])
+        let v = str(kv[1])
+        validate_name(k)
+        if v.length() > 1024 {
+          fail("structured field values must be at most 1024 UTF-16 units")
+        }
+        out.push((k, v))
+      }
+    }
+    _ => fail("event fields must be an object or an array of pairs")
+  }
+  if out.length() == 0 {
+    return None
+  }
+  out.sort_by(fn(a, b) { a.0.lexical_compare(b.0) })
+  Some(out)
+}
+
+///|
+fn read_event(value : Json, value_field : String?) -> Event raise TideError {
   let f = obj(value)
-  fields_only(f, ["id", "key", "at", "value"])
+  fields_only(f, ["id", "key", "at", "value", "fields"])
+  let fields = match f.get("fields") {
+    Some(v) => parse_fields(v)
+    None => None
+  }
   let e = Event::{
     id: str(req(f, "id")),
     key: str(req(f, "key")),
     at: integer(req(f, "at")),
-    value: integer(req(f, "value")),
+    // When `value_field` is configured the numeric measure comes from the
+    // structured fields at aggregation time, so a literal `value` here is
+    // accepted for round-tripping but not used.
+    value: match value_field {
+      None => integer(req(f, "value"))
+      Some(_) => int_or(f, "value", 0)
+    },
+    fields,
   }
   validate_event(e)
   e
 }
 
 ///|
-fn read_command(value : Json) -> Command raise TideError {
+fn read_command(value : Json, value_field : String?) -> Command raise TideError {
   let f = obj(value)
   let kind = str(req(f, "kind"))
   let id = str(req(f, "id"))
@@ -190,7 +267,7 @@ fn read_command(value : Json) -> Command raise TideError {
         match str(req(m, "op")) {
           "put" => {
             fields_only(m, ["op", "event"])
-            changes.push(Put(read_event(req(m, "event"))))
+            changes.push(Put(read_event(req(m, "event"), value_field)))
           }
           "remove" => {
             fields_only(m, ["op", "event_id"])
@@ -208,8 +285,15 @@ fn read_command(value : Json) -> Command raise TideError {
 }
 
 ///|
-fn read_commands(value : Json) -> Array[Command] raise TideError {
-  arr(value, 10000).map(read_command)
+fn read_commands(
+  value : Json,
+  value_field : String?,
+) -> Array[Command] raise TideError {
+  let out : Array[Command] = []
+  for v in arr(value, 10000) {
+    out.push(read_command(v, value_field))
+  }
+  out
 }
 
 ///|
@@ -219,7 +303,7 @@ pub fn decode_config(source : String) -> Config raise TideError {
 
 ///|
 pub fn decode_commands(source : String) -> Array[Command] raise TideError {
-  read_commands(strict_json(source))
+  read_commands(strict_json(source), None)
 }
 
 ///|
@@ -243,12 +327,24 @@ pub impl ToJson for Trigger with fn to_json(self) {
 
 ///|
 pub impl ToJson for Config with fn to_json(self) {
-  {
-    "window": self.window.to_json(),
-    "lateness": self.lateness,
-    "max_events": self.max_events,
-    "max_operations": self.max_operations,
-    "trigger": self.trigger.to_json(),
+  match self.value_field {
+    Some(name) =>
+      {
+        "window": self.window.to_json(),
+        "lateness": self.lateness,
+        "max_events": self.max_events,
+        "max_operations": self.max_operations,
+        "trigger": self.trigger.to_json(),
+        "value_field": name,
+      }
+    None =>
+      {
+        "window": self.window.to_json(),
+        "lateness": self.lateness,
+        "max_events": self.max_events,
+        "max_operations": self.max_operations,
+        "trigger": self.trigger.to_json(),
+      }
   }
 }
 
@@ -324,6 +420,6 @@ pub fn replay_json(source : String) -> String raise TideError {
     fail("unsupported schema_version")
   }
   let c = read_config(req(f, "config"))
-  let commands = read_commands(req(f, "commands"))
+  let commands = read_commands(req(f, "commands"), c.value_field)
   replay(c, commands).to_json().stringify()
 }

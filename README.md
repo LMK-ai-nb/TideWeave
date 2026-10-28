@@ -1,6 +1,6 @@
 # TideWeave
 
-**面向"已记录事实被更正"的可核对修正引擎：撤回、会话重建、终结保护。窗口、水位线、聚合与 Flink 对标实现，独立贡献在修正层。**
+**通用、可嵌入的事件时间窗口处理库：窗口、水位线、UDAF、触发与状态清理，对标 Flink 能力；在此之上提供一般窗口库不具备的事实更正层（撤回重建、终结保护、before-image 校验）。事件支持任意结构化字段，数值度量可按字段配置。**
 
 MoonBit 事件时间窗口与修正日志引擎。迟到事件可以合并会话，撤回桥接事件可以重新拆分会话；每次原子修正输出 before/after 变更，显式水位线保护已终结事实，下游按版本检查漏接与旧值冲突。
 
@@ -23,6 +23,7 @@ TideWeave 将每次修正视为原子状态变更：计算候选事实 → 重�
 - 会话迟到合并、撤回拆分，count / Int64 sum / min / max 与完整成员来源。
 - 显式水位线推进与 allowed-lateness 迟到容忍；`WatermarkTracker` 提供有界乱序水位生成；`within_lateness` 探针。
 - 可插拔自定义聚合（UDAF）：`Measure` + `measure_window`，内置 count/sum/min/max/avg。
+- 任意结构化事件：事件可携带 `fields` 键值属性并随检查点与变更日志完整保留；配置 `value_field` 后，任意整数字段即可作为窗口度量（事件无需再带固定 value）。
 - 可配置触发：`Watermark` 或 `Count(n)` 提前发射；结果以 before/after changelog 输出，下游 `View` 原子校验。
 - 显式状态清理：`Forget` 封存已终结事实、释放活动容量、拒绝后续修正，且可经 checkpoint 精确回放。
 - open → closing → final；保护已终结窗口及原始事件，拒绝将旧事实重新打开。
@@ -51,7 +52,7 @@ Flink 有的窗口、水位线、UDAF、触发、状态清理我们逐项对标�
 要求编译器 **0.10.16 或更新兼容版本**。
 
 ```sh
-moon add LMK-ai-nb/tideweave@0.2.2
+moon add LMK-ai-nb/tideweave@0.2.3
 ```
 
 在消费项目的 `moon.pkg` 加入：
@@ -76,6 +77,12 @@ assert_true(restored.rows() == engine.rows())
 ```
 
 完整公开接口由 `moon info` 生成，见 [pkg.generated.mbti](pkg.generated.mbti)。`aggregate` 可批处理；`Engine` 可持续接收容量内的修正；`replay_json` / `resume_json` 提供严格文本边界。
+
+## 为什么不是"在数据库里改一下"
+
+对已入库的事实做更正，当然可以是一条 UPDATE。TideWeave 处理的是**更正作为持续输入时的窗口一致性**：迟到与乱序由水位线和 allowed lateness 语义化处理；撤回后窗口边界与成员按连通分量重建，而不是依赖应用代码手写重算；每次修正输出成员级的 before/after changelog，版本与旧值可被下游校验；同一命令序列可逐字节重放。
+
+用数据库完成同样的事，需要物化视图、触发器、自研撤回流与版本校验，事件时间语义分散在应用里；在没有数据库的场合——边缘网关、桌面工具、测试夹具、嵌入式进程——更需要一个可嵌入的窗口库。TideWeave 的定位就是这一层：**通用的窗口计算，外加一般窗口库不具备的更正语义**。
 
 ## 与社区同类项目的关系（主动披露）
 
@@ -129,7 +136,7 @@ CLI 退出码：0 表示所有命令 accepted/duplicate；1 表示存在 rejecte
 
 ## 质量与边界
 
-61 个 MoonBit 测试包括独立区间枚举 oracle、独立图连通 oracle、混合 key 状态差分、原子回滚、终结保护、检查点恢复、自定义聚合、水位生成、触发与状态封存。10 个 Node 集成测试覆盖公共协议与真实 CLI；Chromium 检查交互、导出、注入文本与 390px 手机布局。GitHub CI 在 Linux、macOS、Windows 检查 wasm、wasm-gc、js、native 四个目标。
+67 个 MoonBit 测试包括独立区间枚举 oracle、独立图连通 oracle、混合 key 状态差分、原子回滚、终结保护、检查点恢复、自定义聚合、水位生成、触发与状态封存。10 个 Node 集成测试覆盖公共协议与真实 CLI；Chromium 检查交互、导出、注入文本与 390px 手机布局。GitHub CI 在 Linux、macOS、Windows 检查 wasm、wasm-gc、js、native 四个目标。
 
 这是**有界、同步、单进程**的可嵌入状态机，适用于离线对账、边缘批次及流处理回归测试。最多 5000 活跃事件、10000 成功命令、20000 窗口、2 Mi 规范 journal 单元。状态清理是显式的：`Forget` 封存已终结事实并释放活动容量，封存事实冻结为可回放的不可变历史，不做静默驱逐。连续无限流需要宿主设计分区／批次生命周期，宿主还负责消息 IO、持久化、授权与外部消费一致性。这里不提供分布式运行时或外部 exactly-once 承诺。
 
@@ -150,7 +157,7 @@ Windows / Node 24 合成基准：4096 事件、64 key、32 批次，包含解析
 | NDJSON 流式驱动 | `examples/session-stream.ndjson`、`tests/cli.test.mjs` |
 | 提交身份归属 | `node scripts/check_identity.mjs` |
 
-全部测试：`moon test --target wasm-gc`（61 项）、`node --test tests/cli.test.mjs`（10 项）。
+全部测试：`moon test --target wasm-gc`（67 项）、`node --test tests/cli.test.mjs`（10 项）。
 
 ## 原创性与申报
 

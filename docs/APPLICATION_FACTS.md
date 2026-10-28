@@ -6,7 +6,7 @@
 
 ## 一句话定位
 
-TideWeave 是一个 MoonBit 事件时间窗口与修正日志引擎：当**已经记录的事实被更正**时，它原子地重建受影响窗口，输出可核对、可回放、可被下游验证的 before/after 变更。
+TideWeave 是一个**通用、可嵌入的 MoonBit 事件时间窗口处理库**：窗口、水位线、UDAF、触发、状态清理对标 Flink 能力；在此之上提供一般窗口库不具备的修正层——当**已经记录的事实被更正**时，原子重建受影响窗口，输出可核对、可回放、可被下游验证的 before/after 变更。事件支持任意结构化字段，数值度量可按字段配置。
 
 ## 要解决的问题（可实测）
 
@@ -36,11 +36,12 @@ TideWeave 得到：
 | 终结保护 | open → closing → final；即使 SUM 相同也拒绝改写已终结事实 | `boundary_wbtest.mbt` |
 | 触发 | `Trigger::Watermark` 与 `Trigger::Count(n)`；触发只影响发射，不改变终结 | `trigger_wbtest.mbt` |
 | 状态清理 | `Command::Forget` 封存已终结事实、释放活动容量、拒绝后续修正、可确定性回放 | `forget_wbtest.mbt` |
+| 结构化事件 | 事件携带任意 `fields` 键值属性；配置 `value_field` 后任意整数字段作为度量，随检查点与变更日志完整保留 |
 | 检查点 | 记录并校验 version / watermark / frozen；派生行重建而非信任存储聚合 | `checkpoint_wbtest.mbt` |
 | 下游校验 | `View` 原子校验版本连续、before-image、行身份 | `view_wbtest.mbt` |
 | 接入 | MoonBit API、严格 JSON 协议、Node CLI、NDJSON `stream`、浏览器实验室 | `tests/cli.test.mjs`、`tests/browser.py` |
 
-规模：**61 项 MoonBit 测试**（wasm / wasm-gc / js 各 61）、**10 项 CLI/ESM 集成测试**、CI 覆盖 Linux / macOS / Windows 与 wasm、wasm-gc、js、native 四个目标。
+规模：**67 项 MoonBit 测试**（wasm / wasm-gc / js 各 67）、**10 项 CLI/ESM 集成测试**、CI 覆盖 Linux / macOS / Windows 与 wasm、wasm-gc、js、native 四个目标。
 
 ## 三个完整用例
 

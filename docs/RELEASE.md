@@ -1,7 +1,8 @@
 # 发布与独立使用证据
 
-## 0.2.0 / 0.2.1 / 0.2.2（2026-10-24）
+## 0.2.0 – 0.2.3（2026-10-24 / 10-28）
 
+- `0.2.3`（2026-10-28）响应十月初审意见：事件支持任意结构化字段（`fields`）并可通过 `value_field` 配置度量来源；全部字符串排序固定为 `lexical_compare` 以保证跨版本确定性；文档重定位为通用事件时间窗口处理库，并新增"为什么不是在数据库里改一下"。
 - Mooncakes：[LMK-ai-nb/tideweave@0.2.2](https://mooncakes.io/docs/LMK-ai-nb/tideweave@0.2.2)。`0.2.0` 是首个包含新能力的版本；`0.2.1` 为文档修订版；`0.2.2` 修复 `correctable` 语义、检查点 `frozen` 校验与网页实验室的 `forget` 支持。
 - 发布校验：`moon whoami` 返回 `LMK-ai-nb`；`moon publish` 返回 `Server status: 200 OK`；文档页 HTTP 200；本地 registry 索引列出 `0.1.0`、`0.2.0`、`0.2.1`、`0.2.2`。
 - 独立消费：在 `work/consumer-020` 新模块中 `moon add --upgrade LMK-ai-nb/tideweave@0.2.2` 后，`moon check --target all --deny-warn` 通过；`moon run .` 下载发布包并输出 `seed=accepted, phase=closing` / `correctable_after_final=false` / `freeze=accepted, frozen=2, active=0` / `stream_lines=2`。

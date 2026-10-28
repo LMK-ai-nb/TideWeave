@@ -1,7 +1,7 @@
 ///|
 /// A pluggable scalar aggregate (user-defined aggregate function, UDAF).
 ///
-/// `step` folds one event value into the accumulator; `finish` turns the
+/// `step` folds one event measure (its `value`, or the configured structured field) into the accumulator; `finish` turns the
 /// accumulator and the event count into the emitted measure value. Because
 /// `measure_window` recomputes a window from its full member list on every
 /// call, measures stay correct under late arrivals and retractions without a
@@ -125,12 +125,13 @@ fn summarize_span(
   watermark : Int32,
   lateness : Int32,
   trigger : Trigger,
-) -> MeasureWindow {
+  value_field : String?,
+) -> MeasureWindow raise TideError {
   let results = []
   for m in measures {
     let mut acc = m.identity
     for e in events {
-      acc = (m.step)(acc, e.value.to_int64())
+      acc = (m.step)(acc, e.measure(value_field))
     }
     results.push(MeasureResult::{
       name: m.name,
@@ -182,7 +183,7 @@ fn session_spans(
   let sorted = events.copy()
   sorted.sort_by(fn(a, b) {
     if a.at == b.at {
-      a.id.compare(b.id)
+      a.id.lexical_compare(b.id)
     } else {
       a.at.compare(b.at)
     }
@@ -205,7 +206,7 @@ fn session_spans(
 ///|
 fn measure_row_order(a : MeasureWindow, b : MeasureWindow) -> Int32 {
   if a.key != b.key {
-    a.key.compare(b.key)
+    a.key.lexical_compare(b.key)
   } else if a.start != b.start {
     a.start.compare(b.start)
   } else {
@@ -263,6 +264,7 @@ pub fn measure_window(
           watermark,
           c.lateness,
           c.trigger,
+          c.value_field,
         ),
       )
     }

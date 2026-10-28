@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "config": { "window": { "kind": "tumbling", "size": 60, "offset": 0 }, "lateness": 0, "value_field": "watts" },
+  "commands": [
+    { "id": "m1", "kind": "transaction", "changes": [
+      { "op": "put", "event": { "id": "e1", "key": "meter-7", "at": 10, "fields": { "model": "PM-210", "firmware": "2.3.1", "watts": 145 } } }
+    ] },
+    { "id": "m2", "kind": "transaction", "changes": [
+      { "op": "put", "event": { "id": "e2", "key": "meter-7", "at": 40, "fields": { "model": "PM-210", "firmware": "2.3.1", "watts": 98 } } }
+    ] },
+    { "id": "m3", "kind": "transaction", "changes": [
+      { "op": "put", "event": { "id": "e3", "key": "meter-7", "at": 70, "fields": { "model": "PM-210", "firmware": "2.4.0", "watts": 131 } } }
+    ] },
+    { "id": "w1", "kind": "watermark", "to": 130 }
+  ]
+}

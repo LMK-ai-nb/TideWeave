@@ -6,11 +6,23 @@ fn main {
   let e = @tide.Engine::new(c) catch { _ => abort("cannot initialize demo") }
   let commands : Array[@tide.Command] = [
     @tide.Transact(id="seed", changes=[
-      @tide.Put({ id: "left", key: "device-A", at: 0, value: 20, }),
-      @tide.Put({ id: "right", key: "device-A", at: 16, value: 35, }),
+      @tide.Put({ id: "left", key: "device-A", at: 0, value: 20, fields: None, }),
+      @tide.Put({
+        id: "right",
+        key: "device-A",
+        at: 16,
+        value: 35,
+        fields: None,
+      }),
     ]),
     @tide.Transact(id="late-bridge", changes=[
-      @tide.Put({ id: "bridge", key: "device-A", at: 8, value: 12, }),
+      @tide.Put({
+        id: "bridge",
+        key: "device-A",
+        at: 8,
+        value: 12,
+        fields: None,
+      }),
     ]),
     @tide.Transact(id="retract-bridge", changes=[@tide.Remove("bridge")]),
     @tide.Advance(id="finalize", to=60),

@@ -28,7 +28,7 @@ fn restore_value(value : Json) -> Engine raise TideError {
     fail("unsupported checkpoint format or schema")
   }
   let c = read_config(req(f, "config"))
-  let commands = read_commands(req(f, "commands"))
+  let commands = read_commands(req(f, "commands"), c.value_field)
   let engine = Engine::new(c)
   for cmd in commands {
     if engine.apply(cmd).status != "accepted" {
@@ -61,6 +61,6 @@ pub fn resume_json(source : String) -> String raise TideError {
     fail("unsupported schema_version")
   }
   let engine = restore_value(req(f, "checkpoint"))
-  let commands = read_commands(req(f, "commands"))
+  let commands = read_commands(req(f, "commands"), engine.cfg.value_field)
   engine.run(commands).to_json().stringify()
 }

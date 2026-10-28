@@ -10,14 +10,20 @@ test "documented typed session correction and recovery" {
   let view = @tideweave.View::new()
   let outcome = engine.apply(
     @tideweave.Transact(id="seed", changes=[
-      @tideweave.Put({ id: "a", key: "device", at: 0, value: 20, }),
-      @tideweave.Put({ id: "c", key: "device", at: 16, value: 35, }),
+      @tideweave.Put({ id: "a", key: "device", at: 0, value: 20, fields: None, }),
+      @tideweave.Put({
+        id: "c",
+        key: "device",
+        at: 16,
+        value: 35,
+        fields: None,
+      }),
     ]),
   )
   view.apply(outcome)
   let merged = engine.apply(
     @tideweave.Transact(id="late", changes=[
-      @tideweave.Put({ id: "b", key: "device", at: 8, value: 12, }),
+      @tideweave.Put({ id: "b", key: "device", at: 8, value: 12, fields: None, }),
     ]),
   )
   view.apply(merged)

@@ -74,26 +74,32 @@ fn row_from_events(
   watermark : Int32,
   lateness : Int32,
   trigger : Trigger,
-) -> Window {
+  value_field : String?,
+) -> Window raise TideError {
   let mut sum : Int64 = 0
-  let mut low = events[0].value
-  let mut high = events[0].value
+  let mut low : Int64 = 0
+  let mut high : Int64 = 0
   let members = []
-  for e in events {
-    sum = sum + e.value.to_int64()
-    low = if e.value < low { e.value } else { low }
-    high = if e.value > high { e.value } else { high }
+  for i, e in events {
+    let v = e.measure(value_field)
+    if i == 0 {
+      low = v
+      high = v
+    }
+    sum = sum + v
+    low = if v < low { v } else { low }
+    high = if v > high { v } else { high }
     members.push(e.id)
   }
-  members.sort()
+  members.sort_by(fn(a, b) { a.lexical_compare(b) })
   {
     key,
     start,
     end,
     count: events.length(),
     sum,
-    min: low,
-    max: high,
+    min: low.to_int(),
+    max: high.to_int(),
     members,
     phase: phase(end, events.length(), watermark, lateness, trigger),
   }
@@ -102,7 +108,7 @@ fn row_from_events(
 ///|
 fn row_order(a : Window, b : Window) -> Int32 {
   if a.key != b.key {
-    a.key.compare(b.key)
+    a.key.lexical_compare(b.key)
   } else if a.start != b.start {
     a.start.compare(b.start)
   } else {
@@ -143,6 +149,7 @@ fn fixed_rows(
         watermark,
         c.lateness,
         c.trigger,
+        c.value_field,
       ),
     )
   }
@@ -202,11 +209,11 @@ fn session_rows(
   events : Array[Event],
   watermark : Int32,
   gap : Int32,
-) -> Array[Window] {
+) -> Array[Window] raise TideError {
   let sorted = events.copy()
   sorted.sort_by(fn(a, b) {
     if a.at == b.at {
-      a.id.compare(b.id)
+      a.id.lexical_compare(b.id)
     } else {
       a.at.compare(b.at)
     }
@@ -228,6 +235,7 @@ fn session_rows(
           watermark,
           c.lateness,
           c.trigger,
+          c.value_field,
         ),
       )
       begin = i

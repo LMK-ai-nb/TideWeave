@@ -1,9 +1,9 @@
 ///|
 test "late bridge merges sessions and its retraction splits them" {
   let c = config(Session(gap=10))
-  let a : Event = { id: "a", key: "visitor", at: 0, value: 2, }
-  let z : Event = { id: "c", key: "visitor", at: 16, value: 5, }
-  let b : Event = { id: "b", key: "visitor", at: 8, value: 3, }
+  let a : Event = { id: "a", key: "visitor", at: 0, value: 2, fields: None, }
+  let z : Event = { id: "c", key: "visitor", at: 16, value: 5, fields: None, }
+  let b : Event = { id: "b", key: "visitor", at: 8, value: 3, fields: None, }
   let split = aggregate(c, [z, a])
   let merged = aggregate(c, [z, b, a])
   assert_eq(split.length(), 2)
@@ -18,9 +18,9 @@ test "late bridge merges sessions and its retraction splits them" {
 ///|
 test "touching half-open session intervals remain separate" {
   let rows = aggregate(config(Session(gap=10)), [
-    { id: "a", key: "k", at: 0, value: 1, },
-    { id: "b", key: "k", at: 10, value: 1, },
-    { id: "c", key: "k", at: 19, value: 1, },
+    { id: "a", key: "k", at: 0, value: 1, fields: None, },
+    { id: "b", key: "k", at: 10, value: 1, fields: None, },
+    { id: "c", key: "k", at: 19, value: 1, fields: None, },
   ])
   assert_eq(rows.length(), 2)
   assert_eq(rows[1].members, ["b", "c"])
@@ -29,9 +29,9 @@ test "touching half-open session intervals remain separate" {
 ///|
 test "opaque keys never collide through delimiter concatenation" {
   let rows = aggregate(config(Session(gap=2)), [
-    { id: "x", key: "a:0", at: 0, value: 1, },
-    { id: "y", key: "a", at: 0, value: 2, },
-    { id: "z", key: "a\u0000", at: 0, value: 3, },
+    { id: "x", key: "a:0", at: 0, value: 1, fields: None, },
+    { id: "y", key: "a", at: 0, value: 2, fields: None, },
+    { id: "z", key: "a\u0000", at: 0, value: 3, fields: None, },
   ])
   assert_eq(rows.length(), 3)
   assert_eq(rows[0].sum, 2L)
@@ -44,7 +44,13 @@ test "session sweep agrees with independent graph connectivity oracle" {
     let events = []
     for i in 0..<8 {
       if ((mask >> i) & 1) == 1 {
-        events.push(Event::{ id: i.to_string(), key: "k", at: i * 2, value: i, })
+        events.push(Event::{
+          id: i.to_string(),
+          key: "k",
+          at: i * 2,
+          value: i,
+          fields: None,
+        })
       }
     }
     let labels = Array::makei(events.length(), i => i)

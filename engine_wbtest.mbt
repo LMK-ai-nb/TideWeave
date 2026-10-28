@@ -5,7 +5,7 @@ fn sample(
   value~ : Int32 = 1,
   key~ : String = "k",
 ) -> Event {
-  { id, at, value, key, }
+  { id, at, value, key, fields: None, }
 }
 
 ///|

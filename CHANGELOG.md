@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.3 — 2026-10-28
+
+- Arbitrary structured events: `Event` carries sorted `fields` key/value attributes, preserved through reports, changelogs and checkpoints.
+- Configurable measure: `Config.value_field` selects any structured integer field as the window measure, so events no longer need the fixed `value`.
+- Deterministic ordering pinned to `lexical_compare` for all string sorts (row order, member provenance, field serialization), independent of core shortlex changes.
+- Docs: repositioned as a generic embeddable event-time windowing library; new sections answer why a database cannot replace the correction layer.
+- Tests: 67 MoonBit across wasm/wasm-gc/js, 10 Node CLI/ESM.
+
 ## 0.2.2 — 2026-10-24
 
 - Fix `Engine::correctable`: it now returns false when any containing window is final (previously any active event returned true, although such a correction is rejected).

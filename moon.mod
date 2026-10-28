@@ -1,6 +1,6 @@
 name = "LMK-ai-nb/tideweave"
 
-version = "0.2.2"
+version = "0.2.3"
 
 readme = "README.md"
 
@@ -18,4 +18,4 @@ keywords = [
 
 preferred_target = "wasm-gc"
 
-description = "Correction-aware event-time windows with atomic retractions, session splits, finality guards and deterministic replay."
+description = "Generic embeddable event-time windowing library: windows, watermarks, UDAFs, triggers and state cleanup, plus a correction layer (retraction rebuild, finality guards, before-image validation) for amended facts. Structured events supported."

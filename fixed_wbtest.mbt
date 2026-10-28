@@ -18,10 +18,10 @@ test "fixed aggregates preserve signed values, member order and wide sums" {
   let rows = aggregate(
     c,
     [
-      { id: "z", key: "工厂", at: 9, value: 1000000000, },
-      { id: "a", key: "工厂", at: 0, value: 1000000000, },
-      { id: "b", key: "工厂", at: 1, value: 1000000000, },
-      { id: "n", key: "工厂", at: 10, value: -7, },
+      { id: "z", key: "工厂", at: 9, value: 1000000000, fields: None, },
+      { id: "a", key: "工厂", at: 0, value: 1000000000, fields: None, },
+      { id: "b", key: "工厂", at: 1, value: 1000000000, fields: None, },
+      { id: "n", key: "工厂", at: 10, value: -7, fields: None, },
     ],
     watermark=10,
   )

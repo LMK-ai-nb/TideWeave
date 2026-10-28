@@ -8,7 +8,7 @@ pub fn assign_fixed(WindowSpec, Int32) -> Array[(Int32, Int32)] raise TideError
 
 pub fn average_measure() -> Measure
 
-pub fn config(WindowSpec, lateness? : Int32, max_events? : Int32, max_operations? : Int32, trigger? : Trigger) -> Config raise TideError
+pub fn config(WindowSpec, lateness? : Int32, max_events? : Int32, max_operations? : Int32, trigger? : Trigger, value_field? : String?) -> Config raise TideError
 
 pub fn count_measure() -> Measure
 
@@ -62,6 +62,7 @@ pub(all) struct Config {
   max_events : Int32
   max_operations : Int32
   trigger : Trigger
+  value_field : String?
 } derive(Eq)
 pub fn Config::equal(Self, Self) -> Bool
 pub fn Config::not_equal(Self, Self) -> Bool
@@ -106,10 +107,14 @@ pub(all) struct Event {
   key : String
   at : Int32
   value : Int32
-} derive(Eq, ToJson)
+  fields : Array[(String, String)]?
+} derive(Eq)
 pub fn Event::equal(Self, Self) -> Bool
+pub fn Event::field(Self, String) -> String?
+pub fn Event::measure(Self, String?) -> Int64 raise TideError
 pub fn Event::not_equal(Self, Self) -> Bool
 pub fn Event::to_json(Self) -> Json
+pub impl ToJson for Event
 
 pub(all) struct Measure {
   name : String

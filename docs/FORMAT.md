@@ -37,6 +37,8 @@ Window variants:
 
 Configuration defaults are `lateness=0`, `max_events=5000`, `max_operations=10000`, `trigger={"kind":"watermark"}`. A transaction contains 1..128 distinct event IDs. Event fields are all required. Window sizes are positive, slide is in 1..size, offset is in 0..<slide. IDs and keys contain 1..128 UTF-16 units; they are opaque strings, including Unicode and separators. Time units must be consistent within the engine; no unit conversion is performed.
 
+Configuration additionally accepts `value_field`: when set (1..128 units), every event's numeric measure is read from the structured field of that name instead of the fixed `value` — the event JSON then omits `value` (a literal `value`, if present, is accepted for round-tripping but ignored). Structured events carry an optional `fields` object whose values are strings, integers or booleans (integers and booleans are canonicalized to strings); at most 32 fields, keys 1..128 units, values at most 1024 units. Fields are preserved verbatim through changelogs, reports and checkpoints, and are serialized canonically as a sorted array of `[key, value]` pairs. When `value_field` is set, an event whose fields lack that key is rejected with `missing measure field`.
+
 The `trigger` object is optional and defaults to watermark-only. `{"kind":"count","threshold":N}` additionally marks a window `closing` once it holds N events; finality still depends on the watermark plus lateness.
 
 Command kinds: `transaction` (1..128 put/remove mutations), `watermark` (advance the event-time watermark), and `forget` (advance the watermark and freeze every fact whose containing windows are all final, removing them from the active set). A `forget` command has the same shape as a watermark:

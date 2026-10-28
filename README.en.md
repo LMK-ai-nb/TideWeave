@@ -1,6 +1,6 @@
 # TideWeave
 
-**An embeddable event-time window engine aligned with Apache Flink's windowing model, plus the correction and retraction semantics Flink itself handles poorly.**
+**A generic, embeddable event-time windowing library — windows, watermarks, UDAFs, triggers and state cleanup, aligned with the Flink model — plus a correction layer most windowing libraries lack: retraction rebuild, finality protection and before-image validation. Events carry arbitrary structured fields; the numeric measure is field-configurable.**
 
 A MoonBit event-time windowing and correction-log engine. Late events merge sessions; retracting a bridge event splits them again. Every atomic correction emits a before/after changelog, an explicit watermark protects finalized facts, and a downstream view checks version continuity and stale before-images.
 
@@ -17,6 +17,7 @@ Two records at 0 and 16 with gap 10 form separate sessions. A late record at 8 m
 - Session late-merge and retraction-split; count / Int64 sum / min / max and full member provenance.
 - Explicit watermark advancement and allowed-lateness tolerance; `WatermarkTracker` for bounded-out-of-orderness watermark generation; `within_lateness` probe.
 - Pluggable custom aggregation (UDAF): `Measure` + `measure_window`, with built-in count/sum/min/max/avg.
+- Arbitrary structured events: events carry `fields` key/value attributes preserved through checkpoints and changelogs; configure `value_field` to make any integer field the window measure (no fixed `value` required).
 - Configurable trigger: `Watermark` or `Count(n)` early firing; before/after changelog output guarded by the downstream `View`.
 - Explicit state cleanup: `Forget` freezes finalized facts, frees active capacity, rejects later corrections, and replays deterministically through checkpoints.
 - open → closing → final; finalized windows and their member facts are protected from reopening.
@@ -32,7 +33,7 @@ See [Flink mapping](docs/FLINK_MAPPING.md) for a line-by-line mapping against Ap
 Requires MoonBit compiler 0.10.16+.
 
 ```sh
-moon add LMK-ai-nb/tideweave@0.2.2
+moon add LMK-ai-nb/tideweave@0.2.3
 ```
 
 ```moonbit
@@ -77,6 +78,12 @@ node scripts/benchmark.mjs
 
 CLI exit codes: 0 for all-accepted/duplicate, 1 for rejected/conflict, 2 for input/IO/runtime errors. Resume with `{schema_version:1,checkpoint:<saved object>,commands:[...]}` and the `resume` subcommand; the full format is in [FORMAT.md](docs/FORMAT.md).
 
+## Why not just correct it in a database
+
+Amending a stored row can indeed be one UPDATE. TideWeave addresses **window consistency while corrections arrive as a stream**: late and out-of-order data are handled by watermarks and allowed lateness; after a retraction, window boundaries and members are rebuilt from connected components instead of hand-written recalculation; every correction emits a member-level before/after changelog whose versions and before-images the downstream can verify; the same command sequence replays byte for byte.
+
+Doing this in a database means materialized views, triggers, a self-built retraction stream and version checks, with event-time semantics scattered through application code. And in settings without a database — edge gateways, desktop tools, test fixtures, embedded processes — an embeddable windowing library is exactly what is needed. TideWeave is that layer: **general window computation plus correction semantics most windowing libraries lack**.
+
 ## Relationship to existing MoonBit packages
 
 August reviews rejected several submissions for overlapping with existing projects without disclosing the relationship. This project discloses the search results up front — see [Prior art](docs/PRIOR_ART.md).
@@ -112,7 +119,7 @@ Every Flink windowing primitive here is implemented to parity; the correction/re
 
 ## Quality and boundaries
 
-61 MoonBit tests include an independent interval-enumeration oracle, an independent graph-connectivity oracle, mixed-key state diffs, atomic rollback, finality protection, checkpoint recovery, custom aggregation, watermark generation, trigger and state freezing. 10 Node integration tests cover the public protocol and real CLI; Chromium checks interaction, export, injected text and a 390px phone layout. GitHub CI checks wasm, wasm-gc, js and native on Linux, macOS and Windows.
+67 MoonBit tests include an independent interval-enumeration oracle, an independent graph-connectivity oracle, mixed-key state diffs, atomic rollback, finality protection, checkpoint recovery, custom aggregation, watermark generation, trigger and state freezing. 10 Node integration tests cover the public protocol and real CLI; Chromium checks interaction, export, injected text and a 390px phone layout. GitHub CI checks wasm, wasm-gc, js and native on Linux, macOS and Windows.
 
 This is a **bounded, synchronous, single-process** embeddable state machine for offline reconciliation, edge batches and stream-processing regression fixtures. At most 5000 active events, 10000 successful commands, 20000 windows, 2 Mi canonical journal units. State cleanup is explicit: `Forget` freezes finalized facts and frees active capacity; frozen facts become replayable immutable history — never silently evicted. Continuous unbounded streams require the host to design partition/batch lifecycles; the host also owns message IO, persistence, authorization and external consumption consistency. There is no distributed runtime and no external exactly-once guarantee.
 
