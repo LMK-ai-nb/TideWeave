@@ -42,7 +42,7 @@
 - 状态清理：`Command::Forget` 封存已终结事实、释放活动容量、拒绝后续修正，经 checkpoint 精确回放。
 - 直接可用：`stream` 子命令以 NDJSON 驱动同一核心（首行配置、逐行命令、逐行 outcome + summary/checkpoint），任何行式生产者可直连，不必先写集成代码；CLI 测试 10 项。
 - 同类项目披露：检索 mooncakes.io / GitHub，确认 4 个相关包并逐项对照边界，声明无代码复用、非分支/扩展，见 [PRIOR_ART.md](PRIOR_ART.md)。
-- 提交作者审计：`git log` 12/12 提交均为 `LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`，无他人提交记录；本仓库 `git config user.name/email` 已固定。
+- 提交作者审计：`git log` 全部提交均为 `LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`（`node scripts/check_identity.mjs` 复核），无他人提交记录；本仓库 `git config user.name/email` 已固定。
 - Flink 对照：见 [FLINK_MAPPING.md](FLINK_MAPPING.md)，逐条回应驳回 5 点，并附"独立价值"与"能力边界"诚实声明。
 
 以上逐项均有对应 `.mbt` 测试，`moon test --target wasm-gc` 70/70 通过，`moon check --target all --deny-warn` 全绿。
@@ -58,7 +58,7 @@
 ## 2026-10-28 补充（针对本次初审驳回）
 
 - 定位重述：README、moon.mod 描述与申报材料改为「通用事件时间窗口处理库」，修正层作为差异化能力而非选题本身。
-- 场景质疑（数据库即可更正）：新增「为什么不是在数据库里改一下」（README 与 WHY_CORRECTION.md），说明更正作为持续输入时的窗口一致性语义，以及无数据库场合（边缘网关、测试夹具、嵌入式）的必要性。
+- 场景质疑（数据库即可更正）：README 中英新增「什么场景才用得到：三个具体场合」，按场合列出数据库机制上不够的原因，并主动标注不适用场景；WHY_CORRECTION.md 保留可复跑的错误对照。
 - 任意结构化事件：见上「结构化事件」；示例 `examples/structured-events.json`（电表 watts），可执行文档 `API.mbt.md` 增加结构化事件测试。
-- 通用性（跨域）：`examples/ad-billing.json` 用广告计费域（补传曝光 + 无效流量撤回）跑同一套窗口与撤回语义，度量取自 `fields.cents`，与设备／订单示例只差字段配置。
-- 提交作者审计：`git log` 28/28 提交均为 `LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`。
+- 通用性（跨域）：`examples/ad-billing.json` 用广告计费域（补传曝光 + 无效流量撤回）跑同一套窗口与撤回语义，度量取自 `fields.cents`，与设备／订单示例只差字段配置；实验室场景 06。
+- 提交作者审计：`git log` 全部提交均为 `LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`（`node scripts/check_identity.mjs` 复核）。

@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Docs: replace the abstract database objection with three named settings, each paired with the mechanism that makes an UPDATE insufficient, plus an explicit list of cases where this library is the wrong tool.
+- New example `examples/ad-billing.json`: late impression backfill and an invalid-traffic retraction in a billing window, driven by `fields.cents`. Wired into the browser laboratory as scenario 06.
+- Fix the README quick-start snippet: `Event` literals now pass the required `fields` argument, and the example carries the `watts` field its `value_field` refers to.
+- State the structured-event boundary (flat key/value, at most 32 entries) instead of implying arbitrary nesting.
+- Docs: stop pinning commit counts in the audit line; point at `scripts/check_identity.mjs`.
+
 ## 0.2.3 — 2026-10-28
 
 - Arbitrary structured events: `Event` carries sorted `fields` key/value attributes, preserved through reports, changelogs and checkpoints.

@@ -20,7 +20,7 @@
 | 场景一 | 离线设备数据恢复会话边界；撤回错误桥接后恢复原始会话 |
 | 场景二 | 分组订单指标在迟到宽限内同时撤回旧单、写入替代单 |
 | 场景三 | 传感器补传与校准同时修正多个重叠窗口 |
-| 提交作者 | `git log` 12/12 均为 `LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`；本仓库 git 作者已固定，无他人提交 |
+| 提交作者 | `git log` 全部提交均为 `LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`（条数以 `node scripts/check_identity.mjs` 输出为准）；本仓库 git 作者已固定，无他人提交 |
 | 同类项目 | 主动披露 moonwatermarkkit / moon-stream-quality / moon-distinct-sketch / mooncep；无代码复用、非分支/扩展；见 [PRIOR_ART.md](PRIOR_ART.md) |
 | 测试 | 70 项 MoonBit（区间枚举 oracle、图连通 oracle、状态差分、UDAF、水位、触发、封存、边界、CLI 及真实浏览器） |
 | 许可证 | 原创代码 MIT；编译分发保留 MoonBit core 的许可证和 NOTICE |
