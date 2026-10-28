@@ -80,7 +80,7 @@ CLI exit codes: 0 for all-accepted/duplicate, 1 for rejected/conflict, 2 for inp
 
 ## When you actually need this: three concrete settings
 
-First, what the library does not do: it does not "fix a row that is already in the database" — that is an UPDATE's job. It handles something else: **keeping windowed results consistent when corrections arrive as a stream, including where no database exists**. Three concrete settings:
+First, what the library does not do: it does not "fix a row that is already in the database" — that is an UPDATE's job. It handles something else: **keeping windowed results consistent when the correction itself arrives as a stream, and being able to tell the reconciling party exactly what changed**. Three concrete settings:
 
 | Setting | What the database or business system does | Why it falls short |
 | --- | --- | --- |
