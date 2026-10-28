@@ -64,7 +64,7 @@ import { "LMK-ai-nb/tideweave" @tide }
 在可抛出错误的函数中：
 
 ```moonbit
-let cfg = @tide.config(@tide.Session(gap=10), lateness=20)
+let cfg = @tide.config(@tide.Session(gap=10), lateness=20, value_field=Some("watts")) // 度量取自 fields.watts
 let engine = @tide.Engine::new(cfg)
 let view = @tide.View::new()
 let outcome = engine.apply(@tide.Transact(id="batch-1", changes=[
@@ -155,9 +155,10 @@ Windows / Node 24 合成基准：4096 事件、64 key、32 批次，包含解析
 | 触发（Watermark / Count） | `trigger_wbtest.mbt` |
 | 状态封存与确定性回放 | `forget_wbtest.mbt`；`moon run cmd/demo` 末行 `frozen=2, active=0` |
 | NDJSON 流式驱动 | `examples/session-stream.ndjson`、`tests/cli.test.mjs` |
+| 结构化事件与可配置度量 | `structured_wbtest.mbt`；`examples/structured-events.json`；`API.mbt.md`（随测试编译） |
 | 提交身份归属 | `node scripts/check_identity.mjs` |
 
-全部测试：`moon test --target wasm-gc`（68 项）、`node --test tests/cli.test.mjs`（10 项）。
+全部测试：`moon test --target wasm-gc`（70 项）、`node --test tests/cli.test.mjs`（10 项）。
 
 ## 原创性与申报
 

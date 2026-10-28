@@ -10,7 +10,7 @@
 | 独立新项目 | 2026-10-20 创建的 TideWeave；父历史不包含旧项目，业务核心与 submit-guard/permscope/AgentCanary 不同 |
 | 有效工程 | `moon.mod` 名称 `LMK-ai-nb/tideweave`，原生 MoonBit 库、typed demo、ESM bridge |
 | 编译检查 | `moon check --target all --deny-warn` 通过 |
-| 测试 | 68 项 MoonBit 测试（包括可执行 API 文档）；10 项公共 CLI/ESM 集成测试；真实 Chromium 检查 |
+| 测试 | 70 项 MoonBit 测试（包括可执行 API 文档）；10 项公共 CLI/ESM 集成测试；真实 Chromium 检查 |
 | 多目标 | Linux/macOS/Windows，wasm、wasm-gc、js、native，远程 CI 成功，见 [CI](https://github.com/LMK-ai-nb/TideWeave/actions/workflows/ci.yml) |
 | 本地目标 | Windows 本机 wasm、wasm-gc、js 通过；最新 native 使用 MSVC 的 Windows CI 验证，未把本机缺少 SDK 当作本地成功 |
 | 格式与 API | `moon fmt --check`、`moon info` 与已提交 `.mbti` 核对 |
@@ -45,7 +45,7 @@
 - 提交作者审计：`git log` 12/12 提交均为 `LMK-ai-nb <315346758+LMK-ai-nb@users.noreply.github.com>`，无他人提交记录；本仓库 `git config user.name/email` 已固定。
 - Flink 对照：见 [FLINK_MAPPING.md](FLINK_MAPPING.md)，逐条回应驳回 5 点，并附"独立价值"与"能力边界"诚实声明。
 
-以上逐项均有对应 `.mbt` 测试，`moon test --target wasm-gc` 68/68 通过，`moon check --target all --deny-warn` 全绿。
+以上逐项均有对应 `.mbt` 测试，`moon test --target wasm-gc` 70/70 通过，`moon check --target all --deny-warn` 全绿。
 
 ## 提交材料仍需本人处理
 

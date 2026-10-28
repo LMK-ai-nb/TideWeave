@@ -121,3 +121,28 @@ test "fields ride along unchanged when the measure stays numeric" {
   )
   assert_eq(e.events()[0].field("model"), Some("PM-210"))
 }
+
+///|
+test "session windows honor the configured structured field" {
+  let c = config(Session(gap=10), lateness=0, value_field=Some("kwh"))
+  let rows = aggregate(c, [
+    { id: "a", key: "home", at: 0, value: 0, fields: Some([("kwh", "3")]), },
+    { id: "b", key: "home", at: 6, value: 0, fields: Some([("kwh", "4")]), },
+    { id: "c", key: "home", at: 30, value: 0, fields: Some([("kwh", "5")]), },
+  ])
+  assert_eq(rows.length(), 2)
+  assert_eq(rows[0].sum, 7L)
+  assert_eq(rows[1].sum, 5L)
+}
+
+///|
+test "streaming accepts structured events with value_field" {
+  let stream = "{\"config\":{\"window\":{\"kind\":\"tumbling\",\"size\":10,\"offset\":0},\"lateness\":0,\"value_field\":\"watts\"}}\n{\"id\":\"d1\",\"kind\":\"transaction\",\"changes\":[{\"op\":\"put\",\"event\":{\"id\":\"e1\",\"key\":\"meter\",\"at\":1,\"fields\":{\"watts\":50}}}]}\n{\"id\":\"w\",\"kind\":\"watermark\",\"to\":10}\n"
+  let lines = stream_json(stream)
+    .split("\n")
+    .collect()
+    .filter(fn(l) { l.contains("\"summary\"") })
+  let summary = obj(strict_json(lines[0].to_owned()))
+  let rows = arr(req(obj(req(summary, "summary")), "rows"), 8)
+  assert_eq(str(req(obj(rows[0]), "sum")), "50")
+}

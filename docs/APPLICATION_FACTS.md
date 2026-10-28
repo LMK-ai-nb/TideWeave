@@ -41,7 +41,7 @@ TideWeave 得到：
 | 下游校验 | `View` 原子校验版本连续、before-image、行身份 | `view_wbtest.mbt` |
 | 接入 | MoonBit API、严格 JSON 协议、Node CLI、NDJSON `stream`、浏览器实验室 | `tests/cli.test.mjs`、`tests/browser.py` |
 
-规模：**67 项 MoonBit 测试**（wasm / wasm-gc / js 各 67）、**10 项 CLI/ESM 集成测试**、CI 覆盖 Linux / macOS / Windows 与 wasm、wasm-gc、js、native 四个目标。
+规模：**70 项 MoonBit 测试**（wasm / wasm-gc / js 各 68）、**10 项 CLI/ESM 集成测试**、CI 覆盖 Linux / macOS / Windows 与 wasm、wasm-gc、js、native 四个目标。
 
 ## 三个完整用例
 

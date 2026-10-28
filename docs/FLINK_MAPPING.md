@@ -23,6 +23,7 @@ TideWeave 是对标 Apache Flink 事件时间窗口体系、可嵌入的单进�
 | UDAF | `Measure`：`identity / step / finish` 三要素标量聚合，`measure_window` 对任意窗口执行任意度量集 | `aggregate.mbt` |
 | 内置聚合 | `count / sum / min / max / avg` 作为 `Measure` 的内置实现 | `aggregate.mbt`；`aggregate_wbtest.mbt` |
 | 自定义聚合 | `measure(name, identity, step, finish)` 注册任意公式（如 sum of squares、方差） | `aggregate_wbtest.mbt` |
+| 结构化事件类型 | Flink 用 POJO/Row 承载结构化记录；TideWeave 事件携带 `fields` 任意键值属性，`Config.value_field` 指定度量字段（对应 Flink 的字段抽取 key） | `types.mbt`；`structured_wbtest.mbt`；`examples/structured-events.json` |
 
 `measure_window` 复用与状态机完全相同的窗口分配、会话分组与 phase 规则，因此自定义聚合与内置修正引擎共享同一套窗口语义。带身份追踪的修正引擎（`Engine`/`Window`）需要事件 ID 才能做合并/拆分/终结保护，这是比纯标量 UDAF 更强的一层；两者并存，不互相替代。
 
@@ -82,7 +83,7 @@ TideWeave 参考 Flink 的事件时间窗口、水位线、迟到容忍、触发
 
 ```sh
 moon check --target all --deny-warn
-moon test --target wasm-gc --deny-warn   # 67 项，含上述每项能力的专门测试
+moon test --target wasm-gc --deny-warn   # 70 项，含上述每项能力的专门测试
 moon build --target wasm-gc,wasm,js --deny-warn
 moon fmt --check && moon info
 node --test tests/cli.test.mjs

@@ -31,7 +31,7 @@ function draw(rows,events,wm){
   rows.slice(0,4).forEach((r,i)=>{const y=yrow(i),color=r.phase==='closing'?'#dfbc74':r.phase==='final'?'#8297a8':'#78e3c9';
     s.append(svg('text',{x:8,y:y+4,class:'key-label'},r.key.length>12?r.key.slice(0,10)+'…':r.key));
     const box=svg('rect',{x:x(r.start),y:y-11,width:Math.max(2,x(r.end)-x(r.start)),height:23,rx:4,fill:color,'fill-opacity':'.09',stroke:color,'stroke-opacity':'.55'});box.append(svg('title',{},`${r.key} [${r.start}, ${r.end}) · sum ${r.sum}`));s.append(box);
-    r.members.forEach(id=>{const e=byId.get(id);if(!e)return;const dot=svg('circle',{cx:x(e.at),cy:y,r:4,fill:color,stroke:'#151c25','stroke-width':2});dot.append(svg('title',{},`${id} · t=${e.at} · value=${e.value}`));s.append(dot);});
+    r.members.forEach(id=>{const e=byId.get(id);if(!e)return;const dot=svg('circle',{cx:x(e.at),cy:y,r:4,fill:color,stroke:'#151c25','stroke-width':2});dot.append(svg('title',{},`${id} · t=${e.at} · value=${e.value ?? "-"}`));s.append(dot);});
   });
   if(rows.length>4)s.append(svg('text',{x:96,y:149,class:'axis-label'},`另有 ${rows.length-4} 个窗口，完整结果见下表`));
   s.append(svg('line',{x1:x(wm),x2:x(wm),y1:17,y2:147,stroke:'#dfbc74','stroke-dasharray':'4 4'}));

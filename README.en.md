@@ -39,7 +39,7 @@ moon add LMK-ai-nb/tideweave@0.2.3
 ```moonbit
 import { "LMK-ai-nb/tideweave" @tide }
 
-let cfg = @tide.config(@tide.Session(gap=10), lateness=20)
+let cfg = @tide.config(@tide.Session(gap=10), lateness=20, value_field=Some("watts")) // measure comes from fields.watts
 let engine = @tide.Engine::new(cfg)
 let view = @tide.View::new()
 let outcome = engine.apply(@tide.Transact(id="batch-1", changes=[
@@ -119,7 +119,7 @@ Every Flink windowing primitive here is implemented to parity; the correction/re
 
 ## Quality and boundaries
 
-68 MoonBit tests include an independent interval-enumeration oracle, an independent graph-connectivity oracle, mixed-key state diffs, atomic rollback, finality protection, checkpoint recovery, custom aggregation, watermark generation, trigger and state freezing. 10 Node integration tests cover the public protocol and real CLI; Chromium checks interaction, export, injected text and a 390px phone layout. GitHub CI checks wasm, wasm-gc, js and native on Linux, macOS and Windows.
+70 MoonBit tests include an independent interval-enumeration oracle, an independent graph-connectivity oracle, mixed-key state diffs, atomic rollback, finality protection, checkpoint recovery, custom aggregation, watermark generation, trigger and state freezing. 10 Node integration tests cover the public protocol and real CLI; Chromium checks interaction, export, injected text and a 390px phone layout. GitHub CI checks wasm, wasm-gc, js and native on Linux, macOS and Windows.
 
 This is a **bounded, synchronous, single-process** embeddable state machine for offline reconciliation, edge batches and stream-processing regression fixtures. At most 5000 active events, 10000 successful commands, 20000 windows, 2 Mi canonical journal units. State cleanup is explicit: `Forget` freezes finalized facts and frees active capacity; frozen facts become replayable immutable history — never silently evicted. Continuous unbounded streams require the host to design partition/batch lifecycles; the host also owns message IO, persistence, authorization and external consumption consistency. There is no distributed runtime and no external exactly-once guarantee.
 
@@ -138,6 +138,7 @@ Every claim maps to runnable code or a test, not just prose:
 | Trigger (Watermark / Count) | `trigger_wbtest.mbt` |
 | State freezing and deterministic replay | `forget_wbtest.mbt`; `moon run cmd/demo` ends with `frozen=2, active=0` |
 | NDJSON streaming | `examples/session-stream.ndjson`, `tests/cli.test.mjs` |
+| Structured events and configurable measure | `structured_wbtest.mbt`; `examples/structured-events.json`; `API.mbt.md` (compiled by tests) |
 | Commit authorship | `node scripts/check_identity.mjs` |
 
 Full suites: `moon test --target wasm-gc` (58 tests), `node --test tests/cli.test.mjs` (10 tests).

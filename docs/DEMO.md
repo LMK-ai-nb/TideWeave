@@ -17,6 +17,9 @@ moon run cmd/demo
 # 末两行应看到：freeze: accepted; deltas=0 / sealed-correction: rejected
 #              frozen=2, active=0 / restored version=5, watermark=60
 
+# 0b) 结构化事件：事件只带 fields，度量由 value_field 指定
+node bin/tideweave.mjs run examples/structured-events.json
+
 # 1) 错误对照：只做数值增减 vs 重建会话
 node scripts/compare_naive.mjs
 
