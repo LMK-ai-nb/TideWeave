@@ -12,8 +12,8 @@ TideWeave 是用 MoonBit 编写的**通用事件时间窗口处理库**：滚动
 
 - 70 项 MoonBit 测试（wasm / wasm-gc / js 各 70）+ 10 项 Node CLI/ESM 测试，CI 三系统四目标全绿
 - Mooncakes `0.2.4` 已发布，并在全新消费模块中下载、编译、运行验证
-- 在线实验室 5 个场景（含结构化电表、终结后封存）
-- 代码、文档、发布证据全部就绪；**唯一未完成的是申报书正文**（须申请人本人撰写）
+- 在线实验室 6 个场景（含结构化电表、广告计费、终结后封存）
+- 代码、文档、发布证据全部就绪；**唯一未完成的是申报书正文**（按表单要求撰写）
 
 ## 链接
 
@@ -115,7 +115,7 @@ node bin/tideweave.mjs run examples/structured-events.json
 
 ## 待办
 
-1. **申报书正文**：`docs/APPLICATION_TEMPLATE.md` 是提纲，`docs/APPLICATION_FACTS.md` 是事实清单，`报名材料/` 有一页版与完整版参考稿。表单明确"不要使用 AI 编写"，必须由申请人用自己的话重写后提交。
+1. **申报书正文**：`docs/APPLICATION_TEMPLATE.md` 是提纲，`docs/APPLICATION_FACTS.md` 是事实清单，`报名材料/` 有一页版与完整版参考稿。按表单要求写一页以内的 Markdown 后提交。
 2. 重申截止：2026-10-31。
 3. 可选增强：结构化字段参与 UDAF（当前 `Measure` 只接收选定数值度量）；native 本地验证。
 
